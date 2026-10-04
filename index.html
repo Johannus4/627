@@ -197,7 +197,7 @@ async function boot(session){
 
 function renderTabs(){
   const t = ROLE==='admin'
-    ? [['yvirlit','Yvirlit'],['ognir','Ognir'],['felog','Feløg'],['eigarar','Eigarar'],['marknadur','Marknaður'],['utgjald','Útgjaldingar'],['skjol','Skjøl'],['brukarar','Brúkarar']]
+    ? [['yvirlit','Yvirlit'],['ognir','Ognir'],['felog','Feløg'],['eigarar','Eigarar'],['marknadur','Marknaður'],['deal','Deal-greining'],['utgjald','Útgjaldingar'],['skjol','Skjøl'],['brukarar','Brúkarar']]
     : [['yvirlit','Yvirlit'],['minognir','Mínar ognir'],['utgjald','Mínar útgjaldingar'],['skjol','Skjøl']];
   if(!t.find(x=>x[0]===TAB)) TAB=t[0][0];
   $('tabs').innerHTML = t.map(([k,l])=>`<button data-t="${k}" class="${k===TAB?'on':''}">${l}</button>`).join('');
@@ -249,6 +249,7 @@ function render(){
   else if(TAB==='skjol')    v.innerHTML = docsTab();
   else if(TAB==='brukarar') v.innerHTML = usersTab();
   else if(TAB==='marknadur'){ v.innerHTML = marketTab(); setTimeout(initMarket,0); }
+  else if(TAB==='deal'){ v.innerHTML = dealTab(); setTimeout(initDeal,0); }
   wire();
 }
 
@@ -638,8 +639,9 @@ function table(head, rows){
    so vit normalisera alt sum kemur inn.
    ============================================================ */
 const MKT_URL_KEY = 'mkt_url_627';
-const MKT_DEFAULT = 'https://raw.githubusercontent.com/Johannus4/mcgavin-scraper/main/marknadur.json';
+const MKT_DEFAULT = 'https://raw.githubusercontent.com/Johannus4/627/main/marknadur.json';
 let MKT = {rows:[], loaded:false, err:null, updated:null};
+let MKTM = localStorage.getItem('mkt_market_627') || 'fo';   // fo | dk | all
 
 const num = v => {
   if(v==null) return null;
@@ -670,12 +672,14 @@ function normalize(raw){
       const d=new Date(first);
       if(!isNaN(d)) days = Math.max(0, Math.round((today-d)/864e5));
     }
+    const src = pick(r,'source','kelda','site') || '—';
     return {
+      market: pick(r,'market','marknadur') || (/\.dk|boligsiden|boliga|resights|home|edc|nybolig/i.test(String(src))?'dk':'fo'),
       title: pick(r,'title','heiti','name','address','adressa','bustadur') || '—',
       place: pick(r,'place','bygd','town','city','location','stadur','kommuna','bygdin') || '—',
       type:  pick(r,'type','slag','property_type','category') || '—',
       rooms: num(pick(r,'rooms','kom','bedrooms','rum')),
-      source: pick(r,'source','kelda','site') || '—',
+      source: src,
       url:   pick(r,'url','link','slod'),
       price, area, days,
       ppm2: (price && area) ? price/area : null
@@ -729,12 +733,21 @@ async function initMarket(){
 
 function drawMarket(){
   const b=$('mktBody'); if(!b) return;
-  if(MKT.err) return b.innerHTML = `<div class="err">Kundi ikki heinta: ${esc(MKT.err)}</div>
-    <p class="soft" style="margin-top:12px;font-size:14px">
-    Trýst "Kelda" og vís á JSON-fíluna sum scraparin leggur út.</p>`;
+  if(MKT.err) return b.innerHTML = String(MKT.err).indexOf('404')>-1
+    ? `<div class="panel" style="background:var(--panel2)">
+         <h3>Marknaðardátur eru ikki settar upp enn</h3>
+         <p class="soft" style="margin-top:10px;line-height:1.6">
+           Scraparin hevur ikki koyrt enn, so <span class="mono">marknadur.json</span> finst ikki.
+           Legg <span class="mono">scraper/marknadur.py</span> og
+           <span class="mono">.github/workflows/daily.yml</span> í 627-repoið,
+           og koyr "Run workflow" undir Actions.<br><br>
+           Síðani koyrir hann sjálvur eina ferð um dagin kl. 05:10.</p></div>`
+    : `<div class="err">Kundi ikki heinta: ${esc(MKT.err)}</div>
+       <p class="soft" style="margin-top:12px;font-size:14px">
+       Trýst "Kelda" og vís á JSON-fíluna sum scraparin leggur út.</p>`;
   if(!MKT.rows.length) return b.innerHTML=`<div class="empty">Ongar annonsur í dátufíluni.</div>`;
 
-  const rows=MKT.rows;
+  const rows=MKT.rows.filter(r=>MKTM==='all'||r.market===MKTM);
   const places=[...new Set(rows.map(r=>r.place))].sort();
   const sel = $('mktPlace') ? $('mktPlace').value : '';
   const f = sel ? rows.filter(r=>r.place===sel) : rows;
@@ -748,6 +761,11 @@ function drawMarket(){
 
   b.innerHTML = `
   <div class="row" style="margin-bottom:18px">
+    <select id="mktMarket" style="max-width:150px">
+      <option value="fo" ${MKTM==='fo'?'selected':''}>Føroyar</option>
+      <option value="dk" ${MKTM==='dk'?'selected':''}>Danmark</option>
+      <option value="all" ${MKTM==='all'?'selected':''}>Bæði</option>
+    </select>
     <select id="mktPlace" style="max-width:260px">
       <option value="">Allar bygdir (${rows.length})</option>
       ${places.map(p=>`<option value="${esc(p)}" ${p===sel?'selected':''}>${esc(p)} (${byPlace[p].length})</option>`).join('')}
@@ -759,6 +777,10 @@ function drawMarket(){
     <div class="stat"><div class="l">Miðal kr/m²</div><div class="v sea">${mPpm?Math.round(mPpm).toLocaleString('da-DK'):'—'}</div></div>
     <div class="stat"><div class="l">Miðal liggitíð</div><div class="v">${mDays!=null?Math.round(mDays)+' dagar':'—'}</div></div>
   </div>
+
+  <h3 style="margin:26px 0 10px">Keldur</h3>
+  ${(()=>{const bs={}; rows.forEach(r=>{bs[r.source]=(bs[r.source]||0)+1;});
+    return table(['Kelda','Annonsur'], Object.entries(bs).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[esc(k),{n:v}]));})()}
 
   <h3 style="margin:26px 0 10px">Prísnívá eftir bygd</h3>
   ${table(['Bygd','Til sølu','Miðal prísur','kr/m²','Liggitíð'],
@@ -787,6 +809,8 @@ function drawMarket(){
   <div id="scOut" style="margin-top:16px"></div>`;
 
   $('mktPlace').onchange = drawMarket;
+  $('mktMarket').onchange = e => { MKTM=e.target.value;
+    try{localStorage.setItem('mkt_market_627',MKTM);}catch(x){} drawMarket(); };
   $('scRun').onclick = () => {
     const a=+$('scArea').value, c=+$('scCost').value, p=+$('scPpm').value;
     const val=a*p, gain=val-c, pctG = c? gain/c*100 : 0;
@@ -809,6 +833,268 @@ function drawMarket(){
       Hesir bústaðir eru teir, ein keypari velur ímillum í staðin fyri tín.
       Liggja teir leingi, er prísnívá títt ov høgt.</p>`;
   };
+}
+
+// ============================================================
+// DEAL-GREINING
+// Byggir á marknaðardáturnar og roknar: samanberiligar ognir,
+// hvat tú eigur at bjóða, umvælingarkostnað, ARV og BRRRR-úrslit.
+// ============================================================
+const DEAL_K='deal_cfg_627';
+const DEAL_DEF = {
+  ltv:80, rate:5.5, term:30,          // refinansiering
+  stampDuty:1.5,                      // tinglýsing í % av keypsprísi
+  closing:25000,                      // onnur keypsútreiðslur
+  vacancy:5, mgmt:0, maint:1.0,       // % av leigu / % av virði um árið
+  reno:{kosmetisk:2500, midal:6000, fullur:12000, total:18000},
+  kokk:120000, bad:90000, tak:2500, vindeyga:12000, el:800, vvs:700
+};
+const dcfg = () => { try{ return Object.assign({},DEAL_DEF,JSON.parse(localStorage.getItem(DEAL_K)||'{}')); }catch(e){ return {...DEAL_DEF}; } };
+const dsave = c => { try{ localStorage.setItem(DEAL_K, JSON.stringify(c)); }catch(e){} };
+
+// Mánaðarliga avdráttargjaldið á einum annuitetsláni
+function pmt(principal, annualPct, years){
+  const r=(annualPct/100)/12, n=years*12;
+  if(!principal||!n) return 0;
+  if(!r) return principal/n;
+  return principal*r/(1-Math.pow(1+r,-n));
+}
+
+// Samanberiligar ognir: sama bygd, ±25% stødd. Fella aftur til allan marknaðin.
+function comps(place, area){
+  const all = MKT.rows.filter(r=>r.ppm2 && (MKTM==='all'||r.market===MKTM));
+  let c = all.filter(r=>r.place===place);
+  if(area) c = c.filter(r=>!r.area || Math.abs(r.area-area)/area<=0.25);
+  if(c.length<3) c = all.filter(r=>r.place===place);
+  if(c.length<3) c = all;
+  return c;
+}
+
+function dealTab(){
+  const c=dcfg();
+  const places=[...new Set(MKT.rows.filter(r=>MKTM==='all'||r.market===MKTM).map(r=>r.place))].sort();
+  const listings=MKT.rows.filter(r=>r.price && (MKTM==='all'||r.market===MKTM)).sort((a,b)=>String(a.place).localeCompare(String(b.place)));
+  return `<div class="panel">
+    <div class="phead"><h2>Deal-greining</h2>
+      <button class="ghost" id="dCfg">Fortreytir</button></div>
+    ${MKT.loaded && !MKT.rows.length ? `<div class="err" style="margin-bottom:16px">
+      Ongar marknaðardátur enn — greiningin brúkar tá bert tínar egnu tølir.
+      Set scraparan upp fyri at fáa samanberiligar ognir.</div>`:''}
+
+    <div id="dCfgBox" style="display:none;margin-bottom:22px" class="panel">
+      <h3>Fortreytir</h3>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Refinansiering (LTV %)</label><input id="c_ltv" type="number" value="${c.ltv}"></div>
+        <div><label>Renta %</label><input id="c_rate" type="number" step="0.1" value="${c.rate}"></div>
+        <div><label>Loputíð (ár)</label><input id="c_term" type="number" value="${c.term}"></div>
+        <div><label>Tinglýsing %</label><input id="c_stamp" type="number" step="0.1" value="${c.stampDuty}"></div>
+        <div><label>Aðrar keypsútreiðslur</label><input id="c_close" type="number" value="${c.closing}"></div>
+        <div><label>Tómstøða %</label><input id="c_vac" type="number" value="${c.vacancy}"></div>
+        <div><label>Umsiting % av leigu</label><input id="c_mgmt" type="number" value="${c.mgmt}"></div>
+        <div><label>Viðlíkahald % av virði/ár</label><input id="c_maint" type="number" step="0.1" value="${c.maint}"></div>
+      </div>
+      <h3 style="margin-top:18px">Umvælingarkostnaður (kr/m²)</h3>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Kosmetisk</label><input id="r_kos" type="number" value="${c.reno.kosmetisk}"></div>
+        <div><label>Miðal</label><input id="r_mid" type="number" value="${c.reno.midal}"></div>
+        <div><label>Fullur</label><input id="r_ful" type="number" value="${c.reno.fullur}"></div>
+        <div><label>Køkur (stk)</label><input id="r_kok" type="number" value="${c.kokk}"></div>
+        <div><label>Bað (stk)</label><input id="r_bad" type="number" value="${c.bad}"></div>
+        <div><label>Vindeyga (stk)</label><input id="r_vin" type="number" value="${c.vindeyga}"></div>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="ghost" id="dSave">Goym fortreytir</button>
+        <span class="soft" style="font-size:13px">Hesi tøl eru mett — rætta tey til tín marknað.</span></div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:12px">
+      <div><label>Marknaður</label>
+        <select id="d_market">
+          <option value="fo" ${MKTM==='fo'?'selected':''}>Føroyar</option>
+          <option value="dk" ${MKTM==='dk'?'selected':''}>Danmark</option>
+          <option value="all" ${MKTM==='all'?'selected':''}>Bæði</option>
+        </select></div>
+    </div>
+    <div class="grid2">
+      <div><label>Vel eina ogn frá marknaðinum</label>
+        <select id="d_pick"><option value="">— skriva sjálvur inn —</option>
+          ${listings.map((r,i)=>`<option value="${i}">${esc(r.place)} · ${esc(String(r.title).slice(0,40))} · ${krS(r.price)}</option>`).join('')}
+        </select></div>
+      <div><label>Bygd</label>
+        <input id="d_place" list="d_places" value="">
+        <datalist id="d_places">${places.map(p=>`<option value="${esc(p)}">`).join('')}</datalist></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label>Útbodnur prísur</label><input id="d_ask" type="number" value="2500000"></div>
+      <div><label>Stødd (m²)</label><input id="d_area" type="number" value="120"></div>
+      <div><label>Dagar á marknaðinum</label><input id="d_days" type="number" value="0"></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label>Umvælingarstig</label>
+        <select id="d_scope">
+          <option value="0">Eingin — klár at leiga út</option>
+          <option value="kosmetisk">Kosmetisk (máling, gólv)</option>
+          <option value="midal" selected>Miðal (køkur, bað, gólv)</option>
+          <option value="fullur">Fullur (alt innan)</option>
+          <option value="total">Gjøgnumgrevandi</option>
+        </select></div>
+      <div><label>Køkir / Bøð (t.d. 1/1)</label><input id="d_kb" value="1/1"></div>
+      <div><label>Vænta leiga á mána</label><input id="d_rent" type="number" value="0"></div>
+    </div>
+    <div class="row" style="margin-top:16px"><button id="dRun">Greina</button></div>
+    <div id="dOut" style="margin-top:22px"></div>
+  </div>`;
+}
+
+function initDeal(){
+  if(!MKT.loaded){ initMarket().then(()=>{ if(TAB==='deal'){ render(); } }); }
+  const cfg=dcfg();
+  const g=id=>$(id);
+  if(g('dCfg')) g('dCfg').onclick=()=>{ const b=$('dCfgBox'); b.style.display=b.style.display==='none'?'block':'none'; };
+  if(g('dSave')) g('dSave').onclick=()=>{
+    const c=dcfg();
+    c.ltv=+$('c_ltv').value; c.rate=+$('c_rate').value; c.term=+$('c_term').value;
+    c.stampDuty=+$('c_stamp').value; c.closing=+$('c_close').value;
+    c.vacancy=+$('c_vac').value; c.mgmt=+$('c_mgmt').value; c.maint=+$('c_maint').value;
+    c.reno.kosmetisk=+$('r_kos').value; c.reno.midal=+$('r_mid').value; c.reno.fullur=+$('r_ful').value;
+    c.kokk=+$('r_kok').value; c.bad=+$('r_bad').value; c.vindeyga=+$('r_vin').value;
+    dsave(c); $('dCfgBox').style.display='none';
+  };
+  if(g('d_pick')) g('d_pick').onchange=e=>{
+    const i=e.target.value; if(i==='') return;
+    const r=MKT.rows.filter(x=>x.price && (MKTM==='all'||x.market===MKTM)).sort((a,b)=>String(a.place).localeCompare(String(b.place)))[+i];
+    if(!r) return;
+    $('d_place').value=r.place||''; $('d_ask').value=Math.round(r.price||0);
+    if(r.area) $('d_area').value=Math.round(r.area);
+    if(r.days!=null) $('d_days').value=Math.round(r.days);
+  };
+  if(g('d_market')) g('d_market').onchange=e=>{ MKTM=e.target.value;
+    try{localStorage.setItem('mkt_market_627',MKTM);}catch(x){} render(); };
+  if(g('dRun')) g('dRun').onclick=runDeal;
+}
+
+function runDeal(){
+  const c=dcfg();
+  const place=$('d_place').value.trim(), ask=+$('d_ask').value||0, area=+$('d_area').value||0;
+  const days=+$('d_days').value||0, scope=$('d_scope').value;
+  const kb=($('d_kb').value||'0/0').split('/').map(x=>parseInt(x)||0);
+  const rentIn=+$('d_rent').value||0;
+
+  // ---- 1. Marknaðarnívá ----
+  const cp=comps(place,area);
+  const ppmList=cp.map(r=>r.ppm2).filter(Boolean).sort((a,b)=>a-b);
+  const med = ppmList.length? (ppmList.length%2? ppmList[ppmList.length>>1]
+            : (ppmList[(ppmList.length>>1)-1]+ppmList[ppmList.length>>1])/2) : 0;
+  const p25 = ppmList.length? ppmList[Math.floor(ppmList.length*0.25)] : 0;
+  const p75 = ppmList.length? ppmList[Math.floor(ppmList.length*0.75)] : 0;
+  const askPpm = area? ask/area : 0;
+
+  // ---- 2. Umvælingarkostnaður ----
+  let reno=0;
+  if(scope!=='0'){
+    reno = area*(c.reno[scope]||0);
+    if(scope!=='kosmetisk'){ reno += (kb[0]||0)*c.kokk + (kb[1]||0)*c.bad; }
+  }
+  // ---- 3. ARV: marknaðarnívá eftir umvæling ----
+  const arvPpm = scope==='0'? med : (scope==='kosmetisk'? med*1.02 : scope==='midal'? med*1.08 : med*1.15);
+  const arv = area*arvPpm;
+
+  // ---- 4. Hvat eigur tú at bjóða ----
+  // (a) 75%-reglan: ARV*0,75 minus umvæling
+  const bidRule = arv*0.75 - reno;
+  // (b) Út frá cashflow: tað sum ger cashflow = 0 við LTV og rentu
+  const rent = rentIn || (area*med*0.0045);   // mett leiga um einki er skrivað
+  const netRent = rent*(1-c.vacancy/100)*(1-c.mgmt/100) - (arv*c.maint/100)/12;
+  const maxPayment = netRent;
+  const r=(c.rate/100)/12, n=c.term*12;
+  const maxLoan = r? maxPayment*(1-Math.pow(1+r,-n))/r : maxPayment*n;
+  const bidCF = maxLoan/(c.ltv/100) - reno;
+  const bid = Math.min(bidRule, bidCF);
+
+  // ---- 5. Prútingarrúm út frá liggitíð ----
+  const disc = days>180?12 : days>120?9 : days>60?6 : days>30?3 : 0;
+  const likely = ask*(1-disc/100);
+
+  // ---- 6. BRRRR ----
+  const buy = bid>0? bid : ask;
+  const costs = buy*(c.stampDuty/100) + c.closing;
+  const allIn = buy + reno + costs;
+  const refi = arv*(c.ltv/100);
+  const left = allIn - refi;
+  const pay = pmt(refi, c.rate, c.term);
+  const cf = netRent - pay;
+  const coc = left>0? (cf*12)/left*100 : (cf>0? Infinity : 0);
+
+  const band = MKT.rows.filter(x=>(MKTM==='all'||x.market===MKTM) && x.price && Math.abs(x.price-arv)/arv<0.15)
+    .sort((a,b)=>Math.abs(a.price-arv)-Math.abs(b.price-arv)).slice(0,8);
+
+  const verdict = (!med) ? ['Ongar marknaðardátur','soft']
+    : askPpm && askPpm < p25 ? ['Áhugaverd — undir 25% av marknaðinum','green']
+    : askPpm && askPpm < med ? ['Undir miðal','green']
+    : askPpm && askPpm < p75 ? ['Á miðal nívá','gold']
+    : ['Dýr mót marknaðinum','red'];
+
+  $('dOut').innerHTML = `
+  <div class="panel" style="background:var(--panel2)">
+    <div class="phead"><h3>Niðurstøða</h3>
+      <span class="badge ${verdict[1]}" style="color:var(--${verdict[1]==='soft'?'soft':verdict[1]})">${verdict[0]}</span></div>
+    <div class="grid3">
+      <div class="stat"><div class="l">Eigur at bjóða</div><div class="v ${bid>0?'gold':'red'}">${bid>0?krS(bid):'—'}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">útbodnur ${krS(ask)}</div></div>
+      <div class="stat"><div class="l">Virði eftir umvæling</div><div class="v sea">${krS(arv)}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">${Math.round(arvPpm).toLocaleString('da-DK')} kr/m²</div></div>
+      <div class="stat"><div class="l">Cashflow á mána</div><div class="v ${cf>=0?'green':'red'}">${krS(cf)}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">CoC ${isFinite(coc)?coc.toFixed(1)+'%':'∞'}</div></div>
+    </div>
+  </div>
+
+  <div class="panel"><h3>Marknaðurin í ${esc(place||'øllum bygdum')}</h3>
+    <table><tbody>
+      <tr><td class="soft">Samanberiligar ognir</td><td class="num">${cp.length}</td></tr>
+      <tr><td class="soft">Lágt nívá (25%)</td><td class="num">${p25?Math.round(p25).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Miðal</td><td class="num sea">${med?Math.round(med).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Høgt nívá (75%)</td><td class="num">${p75?Math.round(p75).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Henda ognin</td><td class="num ${askPpm&&med&&askPpm<med?'green':'red'}">${askPpm?Math.round(askPpm).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="panel"><h3>Umvæling og prúting</h3>
+    <table><tbody>
+      <tr><td class="soft">Umvælingarkostnaður</td><td class="num">${kr(reno)}</td></tr>
+      <tr><td class="soft">Keypsútreiðslur (tinglýsing o.a.)</td><td class="num">${kr(costs)}</td></tr>
+      <tr><td class="soft">Liggitíð</td><td class="num">${days} dagar</td></tr>
+      <tr><td class="soft">Prútingarrúm eftir liggitíð</td><td class="num ${disc?'green':''}">${disc}%</td></tr>
+      <tr><td class="soft">Sannlíkur søluprísur</td><td class="num gold">${kr(likely)}</td></tr>
+      <tr><td class="soft">Hámark eftir 75%-regluni</td><td class="num">${kr(bidRule)}</td></tr>
+      <tr><td class="soft">Hámark eftir cashflow</td><td class="num">${kr(bidCF)}</td></tr>
+    </tbody></table>
+    <div class="soft" style="margin-top:12px;font-size:14px">
+      Vit taka tað lægra av teimum tveimum. 75%-reglan verjir egnognina, cashflow-reglan verjir likviditetin.</div>
+  </div>
+
+  <div class="panel"><h3>BRRRR — hvat verður bundið</h3>
+    <table><tbody>
+      <tr><td class="soft">Keyp</td><td class="num">${kr(buy)}</td></tr>
+      <tr><td class="soft">+ Umvæling</td><td class="num">${kr(reno)}</td></tr>
+      <tr><td class="soft">+ Útreiðslur</td><td class="num">${kr(costs)}</td></tr>
+      <tr><td class="soft"><strong>= Alt í alt</strong></td><td class="num"><strong>${kr(allIn)}</strong></td></tr>
+      <tr><td class="soft">Refinansiering (${c.ltv}% av ARV)</td><td class="num sea">${kr(refi)}</td></tr>
+      <tr><td class="soft"><strong>Bundin eginfígging</strong></td><td class="num ${left<=0?'green':'gold'}"><strong>${kr(Math.max(0,left))}</strong>${left<=0?' — alt heintað aftur':''}</td></tr>
+      <tr><td class="soft">Leiga á mána</td><td class="num">${kr(rent)}</td></tr>
+      <tr><td class="soft">− tómstøða, umsiting, viðlíkahald</td><td class="num red">${kr(rent-netRent)}</td></tr>
+      <tr><td class="soft">− avdrátt og renta</td><td class="num red">${kr(pay)}</td></tr>
+      <tr><td class="soft"><strong>Cashflow á mána</strong></td><td class="num ${cf>=0?'green':'red'}"><strong>${kr(cf)}</strong></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="panel"><h3>Hvat kappast tú við eftir umvæling</h3>
+    ${band.length? table(['Heiti','Bygd','m²','Prísur','kr/m²','Dagar'],
+      band.map(r=>[esc(String(r.title).slice(0,46)), esc(r.place), {n:r.area?Math.round(r.area):'—'},
+        {n:krS(r.price)}, {n:r.ppm2?Math.round(r.ppm2).toLocaleString('da-DK'):'—'},
+        {n:r.days!=null?Math.round(r.days):'—'}]))
+      : '<div class="empty">Ongar samanberiligar annonsur í hesum prísbili.</div>'}
+    <div class="soft" style="margin-top:12px;font-size:14px">
+      Hesir bústaðir eru teir ein keypari velur ímillum í staðin fyri tín. Liggja teir leingi, er ARV-mettanin ov høg.</div>
+  </div>`;
 }
 
 /* ---------- actions ---------- */
