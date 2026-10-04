@@ -155,7 +155,7 @@ const krS = n => { n = n||0; const a=Math.abs(n);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 let ME=null, ROLE='investor', TAB='yvirlit';
-let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[],ploans:[],units:[],cowners:[],partyloans:[]};
+let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[],ploans:[],units:[],cowners:[],partyloans:[],people:[],rates:[]};
 let OPEN=null, OPENC=null;  // ogn / felag sum er opið
 
 /* ---------- auth ---------- */
@@ -216,6 +216,8 @@ async function load(){
   DATA.units     = await q('property_units');
   DATA.cowners   = await q('company_owners');
   DATA.partyloans= await q('party_loans');
+  DATA.people    = await q('company_people');
+  DATA.rates     = await q('loan_rates');
   DATA.profiles  = ROLE==='admin' ? await q('profiles') : [ME];
 }
 
@@ -367,6 +369,34 @@ function compDetail(){
         Eginognin er ognavirði minus lán á ognunum${owesT?`, minus ${kr(owesT)} sum felagið skyldar eigarum`:''}${dueT?`, plus ${kr(dueT)} sum felagið hevur til góðar`:''}.</div>`:''}
     </div>
 
+    ${(c.description||c.notes)?`<div class="panel">
+      ${c.description?`<h3>Um felagið</h3><div style="white-space:pre-wrap;margin-bottom:${c.notes?'16px':'0'}">${esc(c.description)}</div>`:''}
+      ${c.notes?`<div class="soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Viðmerking</div>
+        <div style="white-space:pre-wrap;margin-top:6px">${esc(c.notes)}</div>`:''}
+    </div>`:''}
+
+    ${(c.monthly_revenue||c.monthly_fixed_costs||c.monthly_variable_costs||c.cash)?`<div class="panel"><h3>Rakstur</h3>
+      <table><tbody>
+        ${c.monthly_revenue?`<tr><td class="soft">Inntøka á mána</td><td class="num green">${kr(c.monthly_revenue)}</td></tr>`:''}
+        ${c.monthly_other_income?`<tr><td class="soft">Onnur inntøka</td><td class="num green">${kr(c.monthly_other_income)}</td></tr>`:''}
+        ${c.monthly_fixed_costs?`<tr><td class="soft">Fastar útreiðslur</td><td class="num red">${kr(c.monthly_fixed_costs)}</td></tr>`:''}
+        ${c.monthly_variable_costs?`<tr><td class="soft">Broytiligar útreiðslur</td><td class="num red">${kr(c.monthly_variable_costs)}</td></tr>`:''}
+        <tr><td class="soft"><strong>Avlop á mána</strong></td><td class="num ${((c.monthly_revenue||0)+(c.monthly_other_income||0)-(c.monthly_fixed_costs||0)-(c.monthly_variable_costs||0))>=0?'green':'red'}"><strong>${kr((c.monthly_revenue||0)+(c.monthly_other_income||0)-(c.monthly_fixed_costs||0)-(c.monthly_variable_costs||0))}</strong></td></tr>
+        ${c.cash?`<tr><td class="soft">Peningur í kassa</td><td class="num">${kr(c.cash)}</td></tr>`:''}
+        ${c.estimated_value?`<tr><td class="soft">Mett virði</td><td class="num gold">${kr(c.estimated_value)}</td></tr>`:''}
+      </tbody></table></div>`:''}
+
+    ${(()=>{ const ppl=DATA.people.filter(x=>x.company_id===c.id);
+      if(!ppl.length) return '';
+      const K={starvsfolk:'Starvsfólk',veitari:'Veitarar',kundi:'Kundar',partnari:'Samstarvsfelagar'};
+      return Object.keys(K).map(k=>{
+        const g=ppl.filter(x=>x.kind===k);
+        if(!g.length) return '';
+        return `<div class="panel"><h3>${K[k]}</h3>${table(['Navn','Leiklutur','Teldupostur','Telefon','Viðmerking'],
+          g.map(x=>[esc(x.name), esc(x.role||''), esc(x.email||''), esc(x.phone||''), esc(x.note||'')]))}</div>`;
+      }).join('');
+    })()}
+
     <div class="panel"><h3>Hvør eigur ${esc(c.name)}</h3>
       ${owners.length? table(['Eigari','Partur'],
         owners.map(o=>[esc(ownerLabel(o)), {n:(o.pct||0).toFixed(1)+'%'}]))
@@ -442,6 +472,7 @@ function propDetail(){
         ${line('Leiga á mána', kr(p.monthly_rent))}
         ${line('Útreiðslur á mána', kr(p.monthly_expenses))}
         ${line('Cashflow á mána', kr(p.monthly_cashflow), (p.monthly_cashflow||0)>=0?'green':'red')}
+        ${p.loan_costs?line('Lánsútreiðslur', kr(p.loan_costs)):''}
         ${line('Eginfígging tilsamans', kr(totalCap))}
         ${line('At býta', kr(surplus), surplus>=0?'green':'red')}
         ${p.rental_strategy?line('Strategi', esc(p.rental_strategy)):''}
@@ -466,12 +497,23 @@ function propDetail(){
           {n:((l.interest_rate||0)*100).toFixed(2)+'%'},
           {n:l.term_years||'—'}, esc(l.start_date||'—')]))
         : '<div class="empty">Ongi lán skrásett.</div>'}
+      ${loans.map(l=>{
+        const rr=DATA.rates.filter(r=>r.loan_id===l.id)
+                  .sort((a,b)=>String(a.from_date).localeCompare(String(b.from_date)));
+        if(!rr.length) return '';
+        return `<div style="margin-top:14px"><div class="soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Rentusøga — ${esc(l.name)}</div>
+          ${table(['Frá',' Renta'], rr.map(r=>[esc(r.from_date||'—'), {n:((r.rate||0)*100).toFixed(2)+'%'}]))}</div>`;
+      }).join('')}
     </div>
 
     <div class="panel"><h3>Útleigueindir</h3>
-      ${units.length? table(['Eind','Leiga á mána','m²','Viðmerking'],
-        units.map(u=>[esc(u.name||'Eind'), {n:kr(u.monthly_rent)},
-          {n:u.area||'—'}, esc(u.note||'')]))
+      ${units.length? table(['Eind','Leiga','Útreiðslur','Netto','Støða','Leigari','Viðmerking'],
+        units.map(u=>{
+          const net=(u.monthly_rent||0)-(u.monthly_expenses||0);
+          return [esc(u.name||'Eind'), {n:kr(u.monthly_rent)}, {n:kr(u.monthly_expenses)},
+            {n:kr(net),c:net>=0?'green':'red'},
+            u.occupied?'Útleigað':'Tómt', esc(u.tenant_name||'—'), esc(u.note||'')];
+        }))
         : '<div class="empty">Ongar eindir skrásettar.</div>'}
     </div>
 
