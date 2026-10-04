@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="fo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>62-7 — Íleggingarpallur</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12181E; --panel:#1A222B; --panel2:#212B35;
+  --line:rgba(158,178,184,.18);
+  --ink:#E8EDEA; --soft:#93A3A9;
+  --sea:#4E9C8F; --gold:#C2A24C; --red:#C9655A; --green:#5FA882;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:15px;line-height:1.5}
+h1,h2,h3,.disp{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;line-height:1}
+.mono{font-family:"IBM Plex Mono",monospace}
+.soft{color:var(--soft)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+.card{background:var(--panel);border:1px solid var(--line);padding:34px;width:100%;max-width:400px}
+.brand{font-family:"Barlow Condensed",sans-serif;font-size:46px;font-weight:600;letter-spacing:.03em;line-height:1}
+.brand small{display:block;font-size:11px;letter-spacing:.24em;color:var(--sea);font-family:"IBM Plex Mono",monospace;margin-top:7px;text-transform:uppercase}
+label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin:16px 0 6px;font-family:"IBM Plex Mono",monospace}
+input,select,textarea{
+  width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  padding:10px 12px;font-family:inherit;font-size:15px;border-radius:0;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--sea);outline-offset:-1px}
+button{
+  background:var(--sea);color:#0E1418;border:none;padding:11px 18px;font-weight:600;
+  cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:16px;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+button:hover{filter:brightness(1.12)}
+button.ghost{background:none;color:var(--sea);border:1px solid var(--line);padding:7px 13px;font-size:14px}
+button.danger{background:none;color:var(--red);border:1px solid var(--line);padding:6px 11px;font-size:13px}
+.err{background:rgba(201,101,90,.14);border:1px solid var(--red);color:#F0C0BA;padding:10px 12px;margin-top:14px;font-size:14px}
+.ok{background:rgba(95,168,130,.13);border:1px solid var(--green);color:#BBE3CC;padding:10px 12px;margin-top:14px;font-size:14px}
+
+/* app chrome */
+header{border-bottom:1px solid var(--line);background:var(--panel)}
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:14px;flex-wrap:wrap}
+.who{font-size:13px;color:var(--soft);text-align:right}
+.badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--sea);
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;padding:3px 8px;text-transform:uppercase}
+nav{display:flex;gap:2px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
+nav button{background:none;color:var(--soft);border:none;border-bottom:2px solid transparent;
+  padding:13px 18px;font-size:15px;white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--sea)}
+main{padding:30px 0 80px}
+
+/* tables & panels */
+.panel{background:var(--panel);border:1px solid var(--line);padding:22px;margin-bottom:22px}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+h2{font-size:24px;font-weight:600}
+h3{font-size:19px;font-weight:600;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--soft);padding:9px 10px;border-bottom:1px solid var(--line);font-weight:500}
+td{padding:11px 10px;border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+tr:hover td{background:rgba(255,255,255,.02)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{background:var(--panel2);border:1px solid var(--line);padding:16px}
+.stat .l{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.stat .v{font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:600;margin-top:5px}
+.green{color:var(--green)} .red{color:var(--red)} .gold{color:var(--gold)} .sea{color:var(--sea)}
+.empty{color:var(--soft);font-style:italic;padding:14px 0}
+dialog{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:26px;max-width:540px;width:94%}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spin{padding:50px;text-align:center;color:var(--soft)}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}
+  table{font-size:13px} th,td{padding:8px 6px}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <div class="card">
+    <div class="brand">62-7<small>Íleggingarpallur</small></div>
+    <form id="loginForm">
+      <label>Teldupostur</label>
+      <input type="email" id="email" required autocomplete="email">
+      <label>Loyniorð</label>
+      <input type="password" id="pw" required autocomplete="current-password" minlength="6">
+      <div style="margin-top:22px" class="row">
+        <button type="submit" id="btnIn">Rita inn</button>
+        <button type="button" class="ghost" id="btnUp">Stovna brúkara</button>
+      </div>
+    </form>
+    <div id="loginMsg"></div>
+    <div id="build" style="margin-top:18px;font-family:'IBM Plex Mono',monospace;
+         font-size:11px;color:var(--red);letter-spacing:.1em">
+      útgáva v5 — JS er IKKI koyrdur</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" style="display:none">
+  <header>
+    <div class="wrap hrow">
+      <div class="brand" style="font-size:30px">62-7<small>Íleggingarpallur</small></div>
+      <div class="who">
+        <div id="uName"></div>
+        <div style="margin-top:5px"><span class="badge" id="uRole"></span>
+          <button class="ghost" id="btnOut" style="margin-left:7px">Út</button></div>
+      </div>
+    </div>
+  </header>
+  <nav class="wrap" id="tabs"></nav>
+  <main class="wrap" id="view"><div class="spin">Heintar…</div></main>
+</div>
+
+<dialog id="dlg"><div id="dlgBody"></div></dialog>
+
+<script>
+/* Fyrsta tekin: vísir at JS í roynd og veru koyrir. */
+(function(){
+  var b=document.getElementById('build');
+  if(b){ b.textContent='útgáva v5 — JS koyrir'; b.style.color='var(--green)'; }
+})();
+
+/* Vís allar villur beint á síðuni — so tykist ikki "einki hendir". */
+function fatal(t){
+  const box = document.getElementById('loginMsg') || document.body;
+  box.innerHTML = '<div class="err" style="white-space:pre-wrap">' + String(t) + '</div>';
+}
+window.addEventListener('error', e => fatal('Villa: ' + (e.message||e)));
+window.addEventListener('unhandledrejection', e => fatal('Villa: ' + (e.reason && e.reason.message || e.reason)));
+if (typeof supabase === 'undefined' || !supabase.createClient) {
+  fatal('Supabase-bókasavnið varð ikki lisið.\n\n'
+      + 'Tað merkir vanliga at teldan ikki hevur samband við netið, '
+      + 'ella at ein annonsublokkari steðgar cdn.jsdelivr.net.\n\n'
+      + 'Royn: kanna netsambandið, ella sláa annonsublokkaran frá fyri hesa síðu.');
+  throw new Error('supabase-js vantar');
+}
+
+const SB_URL = 'https://wmhelepdlzajgiiaazir.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtaGVsZXBkbHphamdpaWFhemlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MzYzOTEsImV4cCI6MjA5NDAxMjM5MX0.QZk9I5IjeA_FtQUo86oaf3GudXDiDmUkB0nXqgC3cY4';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const $ = id => document.getElementById(id);
+const kr = n => (Math.round(n||0)).toLocaleString('da-DK') + ' kr';
+const krS = n => { n = n||0; const a=Math.abs(n);
+  if(a>=1e6) return (n/1e6).toFixed(2)+' mio';
+  if(a>=1e3) return Math.round(n/1e3)+'k'; return Math.round(n)+''; };
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let ME=null, ROLE='investor', TAB='yvirlit';
+let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[],ploans:[],units:[],cowners:[],partyloans:[],people:[],rates:[]};
+let OPEN=null, OPENC=null;  // ogn / felag sum er opið
+
+/* ---------- auth ---------- */
+$('loginForm').onsubmit = async e => {
+  e.preventDefault(); msg('Ritar inn…','ok');
+  try{
+    const {data,error} = await sb.auth.signInWithPassword(
+      {email:$('email').value.trim(), password:$('pw').value});
+    if(error) return msg(error.message,'err');
+    if(!data || !data.session) return msg('Eingin session kom aftur.','err');
+    msg('');
+  }catch(err){ msg('Netsvilla: '+(err && err.message || err),'err'); }
+};
+// Belti og bøkslur: knappurin virkar eisini um "submit" ikki fer í gongd
+$('btnIn').onclick = e => { e.preventDefault(); $('loginForm').onsubmit(e); };
+$('btnUp').onclick = async () => {
+  msg('');
+  const {error} = await sb.auth.signUp({email:$('email').value, password:$('pw').value});
+  if(error) return msg(error.message,'err');
+  msg('Brúkarin er stovnaður. Kannaðu teldupostin um tað verður biðið um váttan — annars kanst tú rita inn beinanvegin.','ok');
+};
+$('btnOut').onclick = () => sb.auth.signOut();
+function msg(t,cls){ $('loginMsg').innerHTML = t ? `<div class="${cls}">${esc(t)}</div>` : ''; }
+
+sb.auth.onAuthStateChange((_e,session)=>{ session ? boot(session) : showLogin(); });
+sb.auth.getSession().then(({data})=>{ data.session ? boot(data.session) : showLogin(); });
+
+function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; ME=null; }
+
+async function boot(session){
+  $('login').style.display='none'; $('app').style.display='block';
+  const {data:prof} = await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+  ME = prof || {id:session.user.id, email:session.user.email, full_name:session.user.email, role:'investor'};
+  ROLE = ME.role || 'investor';
+  $('uName').textContent = ME.full_name || ME.email;
+  $('uRole').textContent = ROLE==='admin' ? 'Umsitari' : 'Íleggjari';
+  renderTabs(); await load(); render();
+}
+
+function renderTabs(){
+  const t = ROLE==='admin'
+    ? [['yvirlit','Yvirlit'],['ognir','Ognir'],['felog','Feløg'],['eigarar','Eigarar'],['marknadur','Marknaður'],['deal','Deal-greining'],['utgjald','Útgjaldingar'],['skjol','Skjøl'],['brukarar','Brúkarar']]
+    : [['yvirlit','Yvirlit'],['minognir','Mínar ognir'],['utgjald','Mínar útgjaldingar'],['skjol','Skjøl']];
+  if(!t.find(x=>x[0]===TAB)) TAB=t[0][0];
+  $('tabs').innerHTML = t.map(([k,l])=>`<button data-t="${k}" class="${k===TAB?'on':''}">${l}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{TAB=b.dataset.t;renderTabs();render();});
+}
+
+/* ---------- data ---------- */
+async function load(){
+  const q = async (t,sel='*') => (await sb.from(t).select(sel)).data || [];
+  DATA.props     = await q('properties');
+  DATA.owners    = await q('property_owners');
+  DATA.dists     = await q('distributions');
+  DATA.docs      = await q('documents');
+  DATA.companies = await q('companies');
+  DATA.ploans    = await q('property_loans');
+  DATA.units     = await q('property_units');
+  DATA.cowners   = await q('company_owners');
+  DATA.partyloans= await q('party_loans');
+  DATA.people    = await q('company_people');
+  DATA.rates     = await q('loan_rates');
+  DATA.profiles  = ROLE==='admin' ? await q('profiles') : [ME];
+}
+
+const pName = id => (DATA.props.find(p=>p.id===id)||{}).name || '—';
+const uName = id => { const u=DATA.profiles.find(x=>x.id===id); return u ? (u.full_name||u.email) : '—'; };
+const coName = id => (DATA.companies.find(c=>c.id===id)||{}).name || '—';
+
+/* Frívirði = virði − lán. Hvør eigari fær fyrst sína eginfígging
+   aftur; bert tað sum er umframt verður býtt eftir partinum. */
+function calc(p, own){
+  const equity = (p.current_value||0) - (p.loan_balance||0);
+  const totalCap = p.total_capital || 0;
+  const surplus = equity - totalCap;
+  if(!own) return {equity, totalCap, surplus};
+  const pct = (own.pct||0)/100;
+  const gain = surplus * pct;
+  return {equity, totalCap, surplus, pct, capital:own.capital||0, gain, share:(own.capital||0)+gain};
+}
+
+/* ---------- render ---------- */
+function render(){
+  const v = $('view');
+  if(TAB==='yvirlit'){
+    v.innerHTML = ROLE==='admin' ? adminOverview() : investorOverview();
+    if(ROLE==='admin' && !MKT.loaded) initMarket().then(()=>{ if(TAB==='yvirlit') render(); });
+  }
+  else if(TAB==='ognir')    v.innerHTML = OPEN ? propDetail() : propsTab();
+  else if(TAB==='felog')    v.innerHTML = OPENC ? compDetail() : compsTab();
+  else if(TAB==='eigarar')  v.innerHTML = ownersTab();
+  else if(TAB==='minognir') v.innerHTML = myProps();
+  else if(TAB==='utgjald')  v.innerHTML = distTab();
+  else if(TAB==='skjol')    v.innerHTML = docsTab();
+  else if(TAB==='brukarar') v.innerHTML = usersTab();
+  else if(TAB==='marknadur'){ v.innerHTML = marketTab(); setTimeout(initMarket,0); }
+  else if(TAB==='deal'){ v.innerHTML = dealTab(); setTimeout(initDeal,0); }
+  wire();
+}
+
+// ============================================================
+// VIRÐISMETING — eru okkara ognir stignar ella falnar?
+// Samanberur móti marknaðinum í somu bygd (kr/m²).
+// ============================================================
+// Virðismetingin skal ALDRI blanda marknaðirnar: ein donsk býlingur
+// kann annars matcha eina føroyska adressu og geva eitt skeivt virði.
+const VAL_MARKET = 'fo';
+const valRows = () => MKT.rows.filter(r=>r.market===VAL_MARKET);
+
+function placeOf(p){
+  const addr=(p.address||'')+' '+(p.name||'');
+  const places=[...new Set(valRows().map(r=>r.place))].filter(x=>x&&x!=='—');
+  const hit=places.find(pl=>addr.toLowerCase().includes(String(pl).toLowerCase()));
+  return hit || null;
+}
+
+function valuation(){
+  if(!valRows().length) return null;
+  return DATA.props.map(p=>{
+    const place=placeOf(p);
+    const cp=place? valRows().filter(r=>r.place===place && r.ppm2)
+                  : valRows().filter(r=>r.ppm2);
+    const ppm=median(cp.map(r=>r.ppm2));
+    const est = (p.area && ppm) ? p.area*ppm : null;
+    const book = p.current_value||0;
+    const diff = est!=null ? est-book : null;
+    // Hví: hvussu nógv flyta prísirnir seg í bygdini?
+    const moves=cp.filter(r=>r.price_change_pct!=null).map(r=>r.price_change_pct);
+    const avgMove = moves.length? moves.reduce((a,b)=>a+b,0)/moves.length : null;
+    const avgDays = median(cp.map(r=>r.days));
+    return {p, place, n:cp.length, ppm, est, book, diff,
+            pct: (est!=null&&book)? diff/book*100 : null, avgMove, avgDays};
+  });
+}
+
+function valuationPanel(){
+  const v=valuation();
+  if(!v) return `<div class="panel"><h3>Virðismeting</h3>
+    <div class="empty">Ongar marknaðardátur enn — set scraparan upp.</div></div>`;
+  const withArea=v.filter(x=>x.est!=null);
+  const tot = withArea.reduce((s,x)=>s+x.diff,0);
+  const miss = v.filter(x=>!x.p.area).length;
+  return `<div class="panel">
+    <div class="phead"><h3>Virðismeting móti føroyska marknaðinum</h3>
+      ${withArea.length?`<span class="badge" style="color:var(--${tot>=0?'green':'red'})">
+        ${tot>=0?'+':''}${krS(tot)} tilsamans</span>`:''}</div>
+    ${miss?`<div class="soft" style="margin-bottom:14px;font-size:14px">
+      ${miss} ogn${miss>1?'ir':''} vanta stødd (m²) — rætta ognina og skriva støddina inn,
+      so kemur hon við í metingini.</div>`:''}
+    ${withArea.length? table(
+      ['Ogn','Bygd','Samanb.','Marknaður kr/m²','Bókað virði','Mett virði','Munur','Hví'],
+      withArea.map(x=>[
+        esc(x.p.name), esc(x.place||'—'), {n:x.n},
+        {n:Math.round(x.ppm).toLocaleString('da-DK')},
+        {n:krS(x.book)}, {n:krS(x.est),c:'gold'},
+        {n:(x.diff>=0?'+':'')+krS(x.diff)+' ('+(x.pct>=0?'+':'')+x.pct.toFixed(1)+'%)',
+         c:x.diff>=0?'green':'red'},
+        esc(x.avgMove!=null&&Math.abs(x.avgMove)>0.5
+            ? `prísir ${x.avgMove>0?'upp':'niður'} ${Math.abs(x.avgMove).toFixed(1)}% í bygdini`
+            : x.avgDays!=null ? `miðal liggitíð ${Math.round(x.avgDays)} dagar`
+            : `${x.n} samanberiligar`)
+      ]))
+      : '<div class="empty">Ongar ognir við stødd skrásettari.</div>'}
+    <div class="soft" style="margin-top:12px;font-size:14px">
+      Metingin er marknaðarins miðal kr/m² í bygdini gangað við støddini. Hon tekur ikki
+      hædd fyri standi, útsýni ella umvæling — brúka hana sum eina vísing, ikki eina vurdering.</div>
+  </div>`;
+}
+
+function adminOverview(){
+  let val=0, loan=0, cf=0;
+  DATA.props.forEach(p=>{ val+=p.current_value||0; loan+=p.loan_balance||0; cf+=p.monthly_cashflow||0; });
+  return `<div class="grid3">
+    <div class="stat"><div class="l">Samlað virði</div><div class="v gold">${krS(val)}</div></div>
+    <div class="stat"><div class="l">Frívirði</div><div class="v sea">${krS(val-loan)}</div></div>
+    <div class="stat"><div class="l">CF á mána</div><div class="v ${cf>=0?'green':'red'}">${krS(cf)}</div></div>
+  </div>
+  ${valuationPanel()}
+  <div class="panel" style="margin-top:22px"><h2>Ognir</h2>
+  ${DATA.props.length? table(
+    ['Ogn','Felag','Virði','Lán','Frívirði','Eigarar'],
+    DATA.props.map(p=>{
+      const n = DATA.owners.filter(o=>o.property_id===p.id).length;
+      return [esc(p.name), esc(coName(p.company_id)),
+        {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
+        {n:krS((p.current_value||0)-(p.loan_balance||0)), c:'sea'}, {n:n}];
+    })) : `<div class="empty">Ongar ognir enn. Far á "Ognir" og legg eina til.</div>`}</div>`;
+}
+
+function investorOverview(){
+  const mine = DATA.owners.filter(o=>o.user_id===ME.id);
+  let cap=0, share=0, gain=0;
+  mine.forEach(o=>{ const p=DATA.props.find(x=>x.id===o.property_id); if(!p) return;
+    const c=calc(p,o); cap+=c.capital; share+=c.share; gain+=c.gain; });
+  const paid = DATA.dists.filter(d=>d.user_id===ME.id).reduce((s,d)=>s+(d.amount||0),0);
+  return `<div class="grid3">
+    <div class="stat"><div class="l">Mín eginfígging</div><div class="v">${krS(cap)}</div></div>
+    <div class="stat"><div class="l">Mítt frívirði</div><div class="v gold">${krS(share)}</div></div>
+    <div class="stat"><div class="l">Reel vinningur</div><div class="v ${gain>=0?'green':'red'}">${krS(gain)}</div></div>
+  </div>
+  <div class="panel" style="margin-top:22px">
+    <h3>Útgoldið til tín</h3>
+    <div class="mono green" style="font-size:26px;margin-top:6px">${kr(paid)}</div>
+    <p class="soft" style="margin-top:10px;font-size:14px">
+      Tú sært bert tínar egnu tølir. Hvat aðrir eigarar hava lagt inn, er ikki atkomuligt.</p>
+  </div>
+  ${mine.length? '' : '<div class="panel"><div class="empty">Tú ert enn ikki skrásettur sum eigari av nakrari ogn.</div></div>'}`;
+}
+
+function myProps(){
+  const mine = DATA.owners.filter(o=>o.user_id===ME.id);
+  if(!mine.length) return `<div class="panel"><div class="empty">Ongar ognir.</div></div>`;
+  return mine.map(o=>{
+    const p = DATA.props.find(x=>x.id===o.property_id); if(!p) return '';
+    const c = calc(p,o);
+    return `<div class="panel">
+      <div class="phead"><div><h3>${esc(p.name)}</h3>
+        <div class="soft" style="font-size:13px">${esc(p.address||'')} · ${esc(coName(p.company_id))}</div></div>
+        <span class="badge">${(c.pct*100).toFixed(1)}% partur</span></div>
+      <div class="grid3">
+        <div class="stat"><div class="l">Mín eginfígging</div><div class="v">${krS(c.capital)}</div></div>
+        <div class="stat"><div class="l">Mítt frívirði</div><div class="v gold">${krS(c.share)}</div></div>
+        <div class="stat"><div class="l">Reel vinningur</div><div class="v ${c.gain>=0?'green':'red'}">${krS(c.gain)}</div></div>
+      </div>
+      <table style="margin-top:16px"><tbody>
+        <tr><td class="soft">Virði á ognini</td><td class="num">${kr(p.current_value)}</td></tr>
+        <tr><td class="soft">Lán</td><td class="num">${kr(p.loan_balance)}</td></tr>
+        <tr><td class="soft">Frívirði tilsamans</td><td class="num">${kr(c.equity)}</td></tr>
+      </tbody></table></div>`;
+  }).join('');
+}
+
+// ---------- Feløg: listi og smálutir ----------
+const ownerLabel = r => r.parent_company ? coName(r.parent_company)
+                     : r.owner_company ? coName(r.owner_company)
+                     : r.user_id ? uName(r.user_id)
+                     : (r.external_name || '—');
+
+function compsTab(){
+  const rows = DATA.companies.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="panel"><div class="phead"><h2>Feløg</h2>
+    <button class="ghost" data-act="newCo">+ Nýtt felag</button></div>
+    ${rows.length? table(['Felag','Slag','Ognir','Eigarar','Skyldar','Til góðar'],
+      rows.map(c=>{
+        const props = DATA.props.filter(p=>p.company_id===c.id);
+        const owners= DATA.cowners.filter(o=>o.company_id===c.id);
+        const owes  = DATA.partyloans.filter(l=>l.borrower_company===c.id && !l.repaid)
+                        .reduce((s,l)=>s+(l.amount||0),0);
+        const due   = DATA.partyloans.filter(l=>l.lender_company===c.id && !l.repaid)
+                        .reduce((s,l)=>s+(l.amount||0),0);
+        return [
+          {h:`<a href="#" data-act="openCo" data-id="${c.id}" style="color:var(--gold);text-decoration:none;font-weight:600">${esc(c.name)}</a>`},
+          esc(c.kind||''), {n:props.length}, {n:owners.length},
+          {n:owes?krS(owes):'—', c:owes?'red':''}, {n:due?krS(due):'—', c:due?'green':''}];
+      })) : '<div class="empty">Ongi feløg.</div>'}</div>`;
+}
+
+function compDetail(){
+  const c = DATA.companies.find(x=>x.id===OPENC);
+  if(!c){ OPENC=null; return compsTab(); }
+  const props  = DATA.props.filter(p=>p.company_id===c.id);
+  const owners = DATA.cowners.filter(o=>o.company_id===c.id);
+  const ownsCo = DATA.cowners.filter(o=>o.parent_company===c.id);
+  const owes   = DATA.partyloans.filter(l=>l.borrower_company===c.id);
+  const due    = DATA.partyloans.filter(l=>l.lender_company===c.id);
+  const val    = props.reduce((s,p)=>s+(p.current_value||0),0);
+  const loan   = props.reduce((s,p)=>s+(p.loan_balance||0),0);
+  const owesT  = owes.filter(l=>!l.repaid).reduce((s,l)=>s+(l.amount||0),0);
+  const dueT   = due.filter(l=>!l.repaid).reduce((s,l)=>s+(l.amount||0),0);
+  const equity = val - loan - owesT + dueT;
+  const lender = l => l.lender_company ? coName(l.lender_company)
+                    : l.lender_user ? uName(l.lender_user) : (l.lender_external||'—');
+
+  return `<div class="row" style="margin-bottom:18px">
+      <button class="ghost" data-act="backCos">← Øll feløg</button></div>
+    <div class="panel">
+      <h2>${esc(c.name)}</h2>
+      <div class="soft" style="margin-bottom:18px">${esc(c.kind||'')}${c.cvr?' · V-tal '+esc(c.cvr):''}${c.founded_date?' · stovnað '+esc(c.founded_date):''}${c.website?' · <a href="'+esc(c.website)+'" target="_blank" rel="noopener" style="color:var(--sea)">'+esc(c.website)+'</a>':''}</div>
+      <div class="grid3">
+        <div class="stat"><div class="l">Ognavirði</div><div class="v gold">${krS(val)}</div></div>
+        <div class="stat"><div class="l">Lán á ognum</div><div class="v red">${krS(loan)}</div></div>
+        <div class="stat"><div class="l">Eginogn eftir lán</div>
+          <div class="v ${equity>=0?'sea':'red'}">${krS(equity)}</div></div>
+      </div>
+      ${(owesT||dueT)?`<div class="soft" style="margin-top:14px;font-size:14px">
+        Eginognin er ognavirði minus lán á ognunum${owesT?`, minus ${kr(owesT)} sum felagið skyldar eigarum`:''}${dueT?`, plus ${kr(dueT)} sum felagið hevur til góðar`:''}.</div>`:''}
+    </div>
+
+    ${(c.description||c.notes)?`<div class="panel">
+      ${c.description?`<h3>Um felagið</h3><div style="white-space:pre-wrap;margin-bottom:${c.notes?'16px':'0'}">${esc(c.description)}</div>`:''}
+      ${c.notes?`<div class="soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Viðmerking</div>
+        <div style="white-space:pre-wrap;margin-top:6px">${esc(c.notes)}</div>`:''}
+    </div>`:''}
+
+    ${(c.monthly_revenue||c.monthly_fixed_costs||c.monthly_variable_costs||c.cash)?`<div class="panel"><h3>Rakstur</h3>
+      <table><tbody>
+        ${c.monthly_revenue?`<tr><td class="soft">Inntøka á mána</td><td class="num green">${kr(c.monthly_revenue)}</td></tr>`:''}
+        ${c.monthly_other_income?`<tr><td class="soft">Onnur inntøka</td><td class="num green">${kr(c.monthly_other_income)}</td></tr>`:''}
+        ${c.monthly_fixed_costs?`<tr><td class="soft">Fastar útreiðslur</td><td class="num red">${kr(c.monthly_fixed_costs)}</td></tr>`:''}
+        ${c.monthly_variable_costs?`<tr><td class="soft">Broytiligar útreiðslur</td><td class="num red">${kr(c.monthly_variable_costs)}</td></tr>`:''}
+        <tr><td class="soft"><strong>Avlop á mána</strong></td><td class="num ${((c.monthly_revenue||0)+(c.monthly_other_income||0)-(c.monthly_fixed_costs||0)-(c.monthly_variable_costs||0))>=0?'green':'red'}"><strong>${kr((c.monthly_revenue||0)+(c.monthly_other_income||0)-(c.monthly_fixed_costs||0)-(c.monthly_variable_costs||0))}</strong></td></tr>
+        ${c.cash?`<tr><td class="soft">Peningur í kassa</td><td class="num">${kr(c.cash)}</td></tr>`:''}
+        ${c.estimated_value?`<tr><td class="soft">Mett virði</td><td class="num gold">${kr(c.estimated_value)}</td></tr>`:''}
+      </tbody></table></div>`:''}
+
+    ${(()=>{ const ppl=DATA.people.filter(x=>x.company_id===c.id);
+      if(!ppl.length) return '';
+      const K={starvsfolk:'Starvsfólk',veitari:'Veitarar',kundi:'Kundar',partnari:'Samstarvsfelagar'};
+      return Object.keys(K).map(k=>{
+        const g=ppl.filter(x=>x.kind===k);
+        if(!g.length) return '';
+        return `<div class="panel"><h3>${K[k]}</h3>${table(['Navn','Leiklutur','Teldupostur','Telefon','Viðmerking'],
+          g.map(x=>[esc(x.name), esc(x.role||''), esc(x.email||''), esc(x.phone||''), esc(x.note||'')]))}</div>`;
+      }).join('');
+    })()}
+
+    <div class="panel"><h3>Hvør eigur ${esc(c.name)}</h3>
+      ${owners.length? table(['Eigari','Partur'],
+        owners.map(o=>[esc(ownerLabel(o)), {n:(o.pct||0).toFixed(1)+'%'}]))
+        : '<div class="empty">Eigarastrukturur ikki skrásettur.</div>'}
+    </div>
+
+    ${ownsCo.length?`<div class="panel"><h3>${esc(c.name)} eigur partar í</h3>
+      ${table(['Felag','Partur'], ownsCo.map(o=>[esc(coName(o.company_id)), {n:(o.pct||0).toFixed(1)+'%'}]))}
+    </div>`:''}
+
+    ${(()=>{
+      const mine = DATA.owners.filter(o=>o.owner_company===c.id);
+      if(!mine.length) return '';
+      return `<div class="panel"><h3>Partar í ognum — og hvat ${esc(c.name)} hevur lagt inn</h3>
+        ${table(['Ogn','Partur','Innlagt','Frívirði tilsamans','Mín partur','Reel vinningur'],
+          mine.map(o=>{
+            const pr=DATA.props.find(x=>x.id===o.property_id)||{};
+            const eq=(pr.current_value||0)-(pr.loan_balance||0);
+            const sur=eq-(pr.total_capital||0), pct=(o.pct||0)/100, g=sur*pct;
+            return [
+              {h:`<a href="#" data-act="gotoProp" data-id="${pr.id}" style="color:var(--gold);text-decoration:none">${esc(pr.name||'—')}</a>`},
+              {n:(o.pct||0).toFixed(1)+'%'}, {n:kr(o.capital)}, {n:kr(eq)},
+              {n:kr((o.capital||0)+g),c:'gold'}, {n:kr(g),c:g>=0?'green':'red'}];
+          }))}
+        <div class="soft" style="margin-top:12px;font-size:14px">
+          Innlagt verður fyrst goldið aftur. Bert tað sum er umframt verður býtt eftir eigarapartinum.</div>
+      </div>`;
+    })()}
+
+    ${props.length?`<div class="panel"><h3>Ognir skrásettar á ${esc(c.name)}</h3>
+      ${table(['Ogn','Virði','Lán','Frívirði'],
+        props.map(p=>[
+          {h:`<a href="#" data-act="gotoProp" data-id="${p.id}" style="color:var(--gold);text-decoration:none">${esc(p.name)}</a>`},
+          {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
+          {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'}]))}
+    </div>`:''}
+
+    <div class="panel"><h3>Lán INN — ${esc(c.name)} skyldar</h3>
+      ${owes.length? table(['Lánari','Upphædd','Renta','Dagur','Støða'],
+        owes.map(l=>[esc(lender(l)), {n:kr(l.amount),c:'red'},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'}, esc(l.loan_date||'—'),
+          l.repaid?'Endurgoldið':'Óendurgoldið']))
+        : '<div class="empty">Eingin skuld til eigarar.</div>'}
+    </div>
+
+    <div class="panel"><h3>Lán ÚT — ${esc(c.name)} hevur til góðar</h3>
+      ${due.length? table(['Lántakari','Upphædd','Renta','Dagur','Støða'],
+        due.map(l=>[esc(coName(l.borrower_company)), {n:kr(l.amount),c:'green'},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'}, esc(l.loan_date||'—'),
+          l.repaid?'Endurgoldið':'Óendurgoldið']))
+        : '<div class="empty">Eingin hevur lænt av hesum felagnum.</div>'}
+    </div>`;
+}
+
+function propDetail(){
+  const p = DATA.props.find(x=>x.id===OPEN);
+  if(!p){ OPEN=null; return propsTab(); }
+  const loans = DATA.ploans.filter(l=>l.property_id===p.id);
+  const units = DATA.units.filter(u=>u.property_id===p.id);
+  const owns  = DATA.owners.filter(o=>o.property_id===p.id);
+  const docs  = DATA.docs.filter(d=>d.property_id===p.id);
+  const equity = (p.current_value||0)-(p.loan_balance||0);
+  const totalCap = p.total_capital||0;
+  const surplus = equity-totalCap;
+  const line = (l,v,cls) => `<tr><td class="soft">${l}</td><td class="num ${cls||''}">${v}</td></tr>`;
+  const ownerName = o => o.user_id ? uName(o.user_id)
+                       : o.owner_company ? coName(o.owner_company)
+                       : (o.external_name||'—');
+
+  return `<div class="row" style="margin-bottom:18px">
+      <button class="ghost" data-act="backProps">← Allar ognir</button>
+      <button class="ghost" data-act="editProp" data-id="${p.id}">Rætta</button></div>
+
+    <div class="panel">
+      <h2>${esc(p.name)}</h2>
+      <div class="soft" style="margin-bottom:18px">${esc(p.address||'')}${p.company_id?' · '+esc(coName(p.company_id)):''}</div>
+      <div class="grid3">
+        <div class="stat"><div class="l">Virði í dag</div><div class="v gold">${krS(p.current_value)}</div></div>
+        <div class="stat"><div class="l">Frívirði</div><div class="v sea">${krS(equity)}</div></div>
+        <div class="stat"><div class="l">CF á mána</div>
+          <div class="v ${(p.monthly_cashflow||0)>=0?'green':'red'}">${krS(p.monthly_cashflow)}</div></div>
+      </div>
+    </div>
+
+    <div class="panel"><h3>Tølini</h3>
+      <table><tbody>
+        ${line('Keypsprísur', kr(p.purchase_price))}
+        ${p.purchase_date?line('Keypsdagur', esc(p.purchase_date)):''}
+        ${line('Umvæling', kr(p.renovation_cost))}
+        ${line('Virði í dag', kr(p.current_value),'gold')}
+        ${line('Lán (restskuld)', kr(p.loan_balance),'red')}
+        ${line('Frívirði', kr(equity),'sea')}
+        ${line('Leiga á mána', kr(p.monthly_rent))}
+        ${line('Útreiðslur á mána', kr(p.monthly_expenses))}
+        ${line('Cashflow á mána', kr(p.monthly_cashflow), (p.monthly_cashflow||0)>=0?'green':'red')}
+        ${p.loan_costs?line('Lánsútreiðslur', kr(p.loan_costs)):''}
+        ${line('Eginfígging tilsamans', kr(totalCap))}
+        ${line('At býta', kr(surplus), surplus>=0?'green':'red')}
+        ${p.rental_strategy?line('Strategi', esc(p.rental_strategy)):''}
+        ${line('Slag', esc(p.property_type||'—'))}
+      </tbody></table>
+      ${p.notes?`<div style="margin-top:16px"><div class="l soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase">Viðmerking</div>
+        <div style="margin-top:6px;white-space:pre-wrap">${esc(p.notes)}</div></div>`:''}
+    </div>
+
+    <div class="panel"><h3>Eigarar</h3>
+      ${owns.length? table(['Eigari','Partur','Eginfígging','Frívirði','Reel vinningur'],
+        owns.map(o=>{
+          const pct=(o.pct||0)/100, gain=surplus*pct;
+          return [esc(ownerName(o)), {n:(o.pct||0).toFixed(2)+'%'}, {n:kr(o.capital)},
+                  {n:kr((o.capital||0)+gain),c:'gold'}, {n:kr(gain),c:gain>=0?'green':'red'}];
+        })) : '<div class="empty">Ongir eigarar skrásettir.</div>'}
+    </div>
+
+    <div class="panel"><h3>Lán</h3>
+      ${loans.length? table(['Navn','Høvuðsstólur','Renta','Ár','Byrjað'],
+        loans.map(l=>[esc(l.name||'Lán'), {n:kr(l.principal)},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'},
+          {n:l.term_years||'—'}, esc(l.start_date||'—')]))
+        : '<div class="empty">Ongi lán skrásett.</div>'}
+      ${loans.map(l=>{
+        const rr=DATA.rates.filter(r=>r.loan_id===l.id)
+                  .sort((a,b)=>String(a.from_date).localeCompare(String(b.from_date)));
+        if(!rr.length) return '';
+        return `<div style="margin-top:14px"><div class="soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace">Rentusøga — ${esc(l.name)}</div>
+          ${table(['Frá',' Renta'], rr.map(r=>[esc(r.from_date||'—'), {n:((r.rate||0)*100).toFixed(2)+'%'}]))}</div>`;
+      }).join('')}
+    </div>
+
+    <div class="panel"><h3>Útleigueindir</h3>
+      ${units.length? table(['Eind','Leiga','Útreiðslur','Netto','Støða','Leigari','Viðmerking'],
+        units.map(u=>{
+          const net=(u.monthly_rent||0)-(u.monthly_expenses||0);
+          return [esc(u.name||'Eind'), {n:kr(u.monthly_rent)}, {n:kr(u.monthly_expenses)},
+            {n:kr(net),c:net>=0?'green':'red'},
+            u.occupied?'Útleigað':'Tómt', esc(u.tenant_name||'—'), esc(u.note||'')];
+        }))
+        : '<div class="empty">Ongar eindir skrásettar.</div>'}
+    </div>
+
+    <div class="panel"><h3>Skjøl</h3>
+      ${docs.length? table(['Heiti',''], docs.map(d=>[esc(d.title),
+        {h:d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener" style="color:var(--sea)">Lat upp ↗</a>`:''}]))
+        : '<div class="empty">Ongi skjøl.</div>'}
+    </div>`;
+}
+
+function propsTab(){
+  return `<div class="panel"><div class="phead"><h2>Ognir</h2>
+    <button class="ghost" data-act="newProp">+ Nýggj ogn</button></div>
+    ${DATA.props.length? table(
+      ['Ogn','Felag','Virði','Lán','Frívirði','Eginfígging',''],
+      DATA.props.map(p=>[
+        {h:`<a href="#" data-act="openProp" data-id="${p.id}" style="color:var(--gold);text-decoration:none;font-weight:600">${esc(p.name)}</a>`},
+        esc(coName(p.company_id)),
+        {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
+        {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'},
+        {n:krS(p.total_capital)},
+        {h:`<button class="ghost" data-act="editProp" data-id="${p.id}">Rætta</button>`}
+      ])) : `<div class="empty">Ongar ognir enn.</div>`}
+    <div class="row" style="margin-top:18px">
+      <button class="ghost" data-act="newCo">+ Nýtt felag</button></div></div>`;
+}
+
+function ownersTab(){
+  return `<div class="panel"><div class="phead"><h2>Eigarar av ognum</h2>
+    <button class="ghost" data-act="newOwner">+ Knýt eigara at ogn</button></div>
+    ${DATA.owners.length? table(
+      ['Ogn','Eigari','Partur','Eginfígging','Frívirði','Reel vinningur',''],
+      DATA.owners.map(o=>{
+        const p=DATA.props.find(x=>x.id===o.property_id)||{};
+        const c=calc(p,o);
+        return [esc(pName(o.property_id)),
+          esc(o.user_id ? uName(o.user_id) : o.owner_company ? coName(o.owner_company) : (o.external_name||'—')),
+          {n:(o.pct||0).toFixed(1)+'%'}, {n:krS(o.capital)},
+          {n:krS(c.share),c:'gold'}, {n:krS(c.gain),c:c.gain>=0?'green':'red'},
+          {h:`<button class="danger" data-act="delOwner" data-id="${o.id}">Strika</button>`}];
+      })) : `<div class="empty">Ongir eigarar knýttir enn.</div>`}</div>`;
+}
+
+function distTab(){
+  const rows = ROLE==='admin' ? DATA.dists : DATA.dists.filter(d=>d.user_id===ME.id);
+  const total = rows.reduce((s,d)=>s+(d.amount||0),0);
+  return `<div class="panel"><div class="phead"><h2>Útgjaldingar</h2>
+    ${ROLE==='admin'?'<button class="ghost" data-act="newDist">+ Skráset útgjalding</button>':''}</div>
+    ${rows.length? table(
+      ['Dagur','Ogn',...(ROLE==='admin'?['Móttakari']:[]),'Upphædd','Viðmerking',...(ROLE==='admin'?['']:[])],
+      rows.map(d=>[
+        esc(d.paid_on||'—'), esc(pName(d.property_id)),
+        ...(ROLE==='admin'?[esc(uName(d.user_id))]:[]),
+        {n:kr(d.amount),c:'green'}, esc(d.note||''),
+        ...(ROLE==='admin'?[{h:`<button class="danger" data-act="delDist" data-id="${d.id}">Strika</button>`}]:[])
+      ])) : `<div class="empty">Ongar útgjaldingar.</div>`}
+    <div style="margin-top:14px;text-align:right" class="mono">Tilsamans: <strong class="green">${kr(total)}</strong></div></div>`;
+}
+
+function docsTab(){
+  return `<div class="panel"><div class="phead"><h2>Skjøl</h2>
+    ${ROLE==='admin'?'<button class="ghost" data-act="newDoc">+ Legg skjal til</button>':''}</div>
+    ${DATA.docs.length? table(
+      ['Heiti','Ogn','',...(ROLE==='admin'?['']:[])],
+      DATA.docs.map(d=>[
+        esc(d.title), esc(pName(d.property_id)),
+        {h:d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener" style="color:var(--sea)">Lat upp ↗</a>`:''},
+        ...(ROLE==='admin'?[{h:`<button class="danger" data-act="delDoc" data-id="${d.id}">Strika</button>`}]:[])
+      ])) : `<div class="empty">Ongi skjøl.</div>`}</div>`;
+}
+
+function usersTab(){
+  return `<div class="panel"><h2>Brúkarar</h2>
+    <p class="soft" style="margin:8px 0 16px;font-size:14px">
+      Brúkarar stovna seg sjálvir á innritanarsíðuni. Her setur tú, hvat teir eru.</p>
+    ${table(['Navn','Teldupostur','Leiklutur',''],
+      DATA.profiles.map(u=>[
+        esc(u.full_name||'—'), esc(u.email||''),
+        {h:`<span class="badge">${u.role==='admin'?'Umsitari':'Íleggjari'}</span>`},
+        {h: u.id===ME.id ? '<span class="soft">tú sjálvur</span>'
+           : `<button class="ghost" data-act="role" data-id="${u.id}" data-r="${u.role==='admin'?'investor':'admin'}">
+              Ger til ${u.role==='admin'?'íleggjara':'umsitara'}</button>`}
+      ]))}</div>`;
+}
+
+function table(head, rows){
+  const th = head.map(h=>`<th class="${/Virði|Lán|Frívirði|Partur|Eginfígging|Upphædd|vinningur/i.test(h)?'num':''}">${h}</th>`).join('');
+  const tb = rows.map(r=>'<tr>'+r.map(c=>{
+    if(c && typeof c==='object'){
+      if(c.h!==undefined) return `<td>${c.h}</td>`;
+      return `<td class="num ${c.c||''}">${c.n}</td>`;
+    }
+    return `<td>${c}</td>`;
+  }).join('')+'</tr>').join('');
+  return `<div style="overflow-x:auto"><table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table></div>`;
+}
+
+/* ============================================================
+   MARKNAÐUR — bert fyri umsitarar
+   Les tað scraparin leggur út. Feltanøvnini kunnu broytast,
+   so vit normalisera alt sum kemur inn.
+   ============================================================ */
+const MKT_URL_KEY = 'mkt_url_627';
+const MKT_DEFAULT = 'https://raw.githubusercontent.com/Johannus4/627/main/marknadur.json';
+let MKT = {rows:[], loaded:false, err:null, updated:null};
+let MKTM = localStorage.getItem('mkt_market_627') || 'fo';   // fo | dk | all
+
+const num = v => {
+  if(v==null) return null;
+  if(typeof v==='number') return isFinite(v)?v:null;
+  // Tak bert fyrsta talbólkin, so "145 m2" ikki verður 1452
+  const m = String(v).match(/-?\d[\d.,\s]*/);
+  if(!m) return null;
+  const s = m[0].replace(/\s/g,'')
+    .replace(/\.(?=\d{3}(\D|$))/g,'')   // túsundskiljari: 2.450.000
+    .replace(/,(?=\d{3}(\D|$))/g,'')    // ella 2,450,000
+    .replace(',','.');                  // desimalkomma
+  const n = parseFloat(s);
+  return isFinite(n)?n:null;
+};
+const pick = (o,...keys) => { for(const k of keys){ if(o[k]!=null && o[k]!=='') return o[k]; } return null; };
+
+function normalize(raw){
+  let arr = Array.isArray(raw) ? raw
+    : (raw.listings || raw.data || raw.properties || raw.ognir || raw.items || []);
+  if(!Array.isArray(arr)) arr=[];
+  const today = new Date();
+  return arr.map(r=>{
+    const price = num(pick(r,'price','prisur','pris','asking_price','upphaedd','kostur'));
+    const area  = num(pick(r,'area','m2','sqm','stodd','size','fermetrar','bustovn'));
+    const first = pick(r,'first_seen','firstSeen','listed','listed_date','scraped_at','date','created_at');
+    let days = num(pick(r,'days_on_market','liggetid','dagar'));
+    if(days==null && first){
+      const d=new Date(first);
+      if(!isNaN(d)) days = Math.max(0, Math.round((today-d)/864e5));
+    }
+    const src = pick(r,'source','kelda','site') || '—';
+    return {
+      market: pick(r,'market','marknadur') || (/\.dk|boligsiden|boliga|resights|home|edc|nybolig/i.test(String(src))?'dk':'fo'),
+      title: pick(r,'title','heiti','name','address','adressa','bustadur') || '—',
+      place: pick(r,'place','bygd','town','city','location','stadur','kommuna','bygdin') || '—',
+      type:  pick(r,'type','slag','property_type','category') || '—',
+      rooms: num(pick(r,'rooms','kom','bedrooms','rum')),
+      source: src,
+      url:   pick(r,'url','link','slod'),
+      price, area, days,
+      ppm2: (price && area) ? price/area : null
+    };
+  }).filter(r=>r.price || r.area);
+}
+
+const median = a => { const x=a.filter(v=>v!=null&&isFinite(v)).sort((p,q)=>p-q);
+  if(!x.length) return null; const m=x.length>>1;
+  return x.length%2 ? x[m] : (x[m-1]+x[m])/2; };
+
+function marketTab(){
+  const url = localStorage.getItem(MKT_URL_KEY) || MKT_DEFAULT;
+  return `<div class="panel">
+    <div class="phead"><h2>Marknaður</h2>
+      <div class="row">
+        <button class="ghost" id="mktReload">Dagfør</button>
+        <button class="ghost" id="mktCfg">Kelda</button>
+      </div></div>
+    <div id="mktCfgBox" style="display:none;margin-bottom:16px">
+      <label>Slóð til dátufíluna (JSON)</label>
+      <input id="mktUrl" value="${esc(url)}">
+      <div class="row" style="margin-top:10px">
+        <button class="ghost" id="mktSave">Goym slóð</button></div>
+    </div>
+    <div id="mktBody"><div class="spin">Heintar marknaðardátur…</div></div>
+  </div>`;
+}
+
+async function initMarket(){
+  const cfg=$('mktCfg'), box=$('mktCfgBox');
+  if(cfg) cfg.onclick=()=>{ box.style.display = box.style.display==='none'?'block':'none'; };
+  if($('mktSave')) $('mktSave').onclick=()=>{
+    localStorage.setItem(MKT_URL_KEY,$('mktUrl').value.trim()); MKT.loaded=false; initMarket(); };
+  if($('mktReload')) $('mktReload').onclick=()=>{ MKT.loaded=false; initMarket(); };
+
+  if(!MKT.loaded){
+    const url = localStorage.getItem(MKT_URL_KEY) || MKT_DEFAULT;
+    try{
+      const r = await fetch(url, {cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status+' — fíluna finst ikki (enn).');
+      const j = await r.json();
+      MKT.rows = normalize(j);
+      MKT.updated = j.updated_at || j.generated || null;
+      MKT.err = null;
+    }catch(e){ MKT.err = e.message; MKT.rows=[]; }
+    MKT.loaded = true;
+  }
+  drawMarket();
+}
+
+function drawMarket(){
+  const b=$('mktBody'); if(!b) return;
+  if(MKT.err) return b.innerHTML = String(MKT.err).indexOf('404')>-1
+    ? `<div class="panel" style="background:var(--panel2)">
+         <h3>Marknaðardátur eru ikki settar upp enn</h3>
+         <p class="soft" style="margin-top:10px;line-height:1.6">
+           Scraparin hevur ikki koyrt enn, so <span class="mono">marknadur.json</span> finst ikki.
+           Legg <span class="mono">scraper/marknadur.py</span> og
+           <span class="mono">.github/workflows/daily.yml</span> í 627-repoið,
+           og koyr "Run workflow" undir Actions.<br><br>
+           Síðani koyrir hann sjálvur eina ferð um dagin kl. 05:10.</p></div>`
+    : `<div class="err">Kundi ikki heinta: ${esc(MKT.err)}</div>
+       <p class="soft" style="margin-top:12px;font-size:14px">
+       Trýst "Kelda" og vís á JSON-fíluna sum scraparin leggur út.</p>`;
+  if(!MKT.rows.length) return b.innerHTML=`<div class="empty">Ongar annonsur í dátufíluni.</div>`;
+
+  const rows=MKT.rows.filter(r=>MKTM==='all'||r.market===MKTM);
+  const places=[...new Set(rows.map(r=>r.place))].sort();
+  const sel = $('mktPlace') ? $('mktPlace').value : '';
+  const f = sel ? rows.filter(r=>r.place===sel) : rows;
+
+  const mPrice=median(f.map(r=>r.price)), mPpm=median(f.map(r=>r.ppm2)), mDays=median(f.map(r=>r.days));
+  const byPlace = {};
+  rows.forEach(r=>{ (byPlace[r.place]=byPlace[r.place]||[]).push(r); });
+  const placeRows = Object.entries(byPlace)
+    .map(([p,a])=>({p, n:a.length, ppm:median(a.map(x=>x.ppm2)), pr:median(a.map(x=>x.price)), d:median(a.map(x=>x.days))}))
+    .filter(x=>x.n>=2).sort((a,b2)=>(b2.ppm||0)-(a.ppm||0));
+
+  b.innerHTML = `
+  <div class="row" style="margin-bottom:18px">
+    <select id="mktMarket" style="max-width:150px">
+      <option value="fo" ${MKTM==='fo'?'selected':''}>Føroyar</option>
+      <option value="dk" ${MKTM==='dk'?'selected':''}>Danmark</option>
+      <option value="all" ${MKTM==='all'?'selected':''}>Bæði</option>
+    </select>
+    <select id="mktPlace" style="max-width:260px">
+      <option value="">Allar bygdir (${rows.length})</option>
+      ${places.map(p=>`<option value="${esc(p)}" ${p===sel?'selected':''}>${esc(p)} (${byPlace[p].length})</option>`).join('')}
+    </select>
+    ${MKT.updated?`<span class="soft mono" style="font-size:12px">dagført ${esc(String(MKT.updated).slice(0,16))}</span>`:''}
+  </div>
+  <div class="soft" style="margin-bottom:14px;font-size:14px">
+    Vísir <strong style="color:var(--ink)">${MKTM==='dk'?'danskar':MKTM==='fo'?'føroyskar':'allar'}</strong> annonsur —
+    ${MKT.rows.filter(r=>r.market==='fo').length} føroyskar, ${MKT.rows.filter(r=>r.market==='dk').length} danskar í alt.
+  </div>
+  <div class="grid3">
+    <div class="stat"><div class="l">Miðal prísur</div><div class="v gold">${mPrice?krS(mPrice):'—'}</div></div>
+    <div class="stat"><div class="l">Miðal kr/m²</div><div class="v sea">${mPpm?Math.round(mPpm).toLocaleString('da-DK'):'—'}</div></div>
+    <div class="stat"><div class="l">Miðal liggitíð</div><div class="v">${mDays!=null?Math.round(mDays)+' dagar':'—'}</div></div>
+  </div>
+
+  <h3 style="margin:26px 0 10px">Keldur</h3>
+  ${(()=>{const bs={}; rows.forEach(r=>{const k=r.source+'|'+r.market; bs[k]=(bs[k]||0)+1;});
+    return table(['Kelda','Marknaður','Annonsur'], Object.entries(bs).sort((a,b)=>b[1]-a[1])
+      .map(([k,v])=>{const [src,mk]=k.split('|');
+        return [esc(src), {h:`<span class="badge" style="color:var(--${mk==='dk'?'gold':'sea'})">${mk==='dk'?'DK':'FO'}</span>`}, {n:v}];}));})()}
+
+  <h3 style="margin:26px 0 10px">Prísnívá eftir bygd</h3>
+  ${table(['Bygd','Til sølu','Miðal prísur','kr/m²','Liggitíð'],
+    placeRows.map(x=>[esc(x.p), {n:x.n}, {n:x.pr?krS(x.pr):'—'},
+      {n:x.ppm?Math.round(x.ppm).toLocaleString('da-DK'):'—',c:'sea'},
+      {n:x.d!=null?Math.round(x.d):'—'}]))}
+
+  <h3 style="margin:26px 0 10px">Hvat annars er til sølu${sel?' í '+esc(sel):''}</h3>
+  ${table(['Heiti','Marknaður','Bygd','Slag','m²','Prísur','kr/m²','Dagar','Kelda'],
+    f.slice().sort((a,b2)=>(b2.price||0)-(a.price||0)).slice(0,60).map(r=>[
+      r.url?{h:`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--sea)">${esc(r.title)}</a>`}:esc(r.title),
+      {h:`<span class="badge" style="color:var(--${r.market==='dk'?'gold':'sea'})">${r.market==='dk'?'DK':'FO'}</span>`},
+      esc(r.place), esc(r.type),
+      {n:r.area?Math.round(r.area):'—'}, {n:r.price?krS(r.price):'—'},
+      {n:r.ppm2?Math.round(r.ppm2).toLocaleString('da-DK'):'—',c:'sea'},
+      {n:r.days!=null?Math.round(r.days):'—'}, esc(r.source)]))}
+
+  <h3 style="margin:30px 0 10px">Umvæling — hvat sigur marknaðurin?</h3>
+  <p class="soft" style="font-size:14px;margin-bottom:14px">
+    Roknar eftir miðal kr/m² í valdu bygd og vísir, hvat tú kappast við í tí prísbilinum.</p>
+  <div class="grid3">
+    <div><label>Støddin eftir umvæling (m²)</label><input id="scArea" type="number" value="120"></div>
+    <div><label>Keypsprísur + umvæling (kr)</label><input id="scCost" type="number" value="2500000"></div>
+    <div><label>kr/m² at rokna við</label><input id="scPpm" type="number" value="${mPpm?Math.round(mPpm):18000}"></div>
+  </div>
+  <div class="row" style="margin-top:12px"><button class="ghost" id="scRun">Rokna</button></div>
+  <div id="scOut" style="margin-top:16px"></div>`;
+
+  $('mktPlace').onchange = drawMarket;
+  $('mktMarket').onchange = e => { MKTM=e.target.value;
+    try{localStorage.setItem('mkt_market_627',MKTM);}catch(x){} drawMarket(); };
+  $('scRun').onclick = () => {
+    const a=+$('scArea').value, c=+$('scCost').value, p=+$('scPpm').value;
+    const val=a*p, gain=val-c, pctG = c? gain/c*100 : 0;
+    const band = (sel?f:rows).filter(r=>r.price && Math.abs(r.price-val)/val < 0.15)
+      .sort((x,y)=>Math.abs(x.price-val)-Math.abs(y.price-val)).slice(0,10);
+    $('scOut').innerHTML = `<div class="grid3">
+      <div class="stat"><div class="l">Mett virði</div><div class="v gold">${krS(val)}</div></div>
+      <div class="stat"><div class="l">Kostnaður</div><div class="v">${krS(c)}</div></div>
+      <div class="stat"><div class="l">Vinningur</div>
+        <div class="v ${gain>=0?'green':'red'}">${krS(gain)}</div>
+        <div class="soft mono" style="font-size:12px;margin-top:4px">${pctG.toFixed(1)}%</div></div>
+    </div>
+    <h3 style="margin:22px 0 10px">Kappingarbústaðir í sama prísbili (±15%)</h3>
+    ${band.length? table(['Heiti','Bygd','m²','Prísur','kr/m²','Dagar'],
+      band.map(r=>[esc(r.title),esc(r.place),{n:r.area?Math.round(r.area):'—'},
+        {n:krS(r.price)},{n:r.ppm2?Math.round(r.ppm2).toLocaleString('da-DK'):'—',c:'sea'},
+        {n:r.days!=null?Math.round(r.days):'—'}]))
+      : '<div class="empty">Ongir samanberiligir bústaðir í hesum prísbili.</div>'}
+    <p class="soft" style="font-size:13px;margin-top:12px">
+      Hesir bústaðir eru teir, ein keypari velur ímillum í staðin fyri tín.
+      Liggja teir leingi, er prísnívá títt ov høgt.</p>`;
+  };
+}
+
+// ============================================================
+// DEAL-GREINING
+// Byggir á marknaðardáturnar og roknar: samanberiligar ognir,
+// hvat tú eigur at bjóða, umvælingarkostnað, ARV og BRRRR-úrslit.
+// ============================================================
+const DEAL_K='deal_cfg_627';
+const DEAL_DEF = {
+  ltv:80, rate:5.5, term:30,          // refinansiering
+  stampDuty:1.5,                      // tinglýsing í % av keypsprísi
+  closing:25000,                      // onnur keypsútreiðslur
+  vacancy:5, mgmt:0, maint:1.0,       // % av leigu / % av virði um árið
+  reno:{kosmetisk:2500, midal:6000, fullur:12000, total:18000},
+  kokk:120000, bad:90000, tak:2500, vindeyga:12000, el:800, vvs:700
+};
+const dcfg = () => { try{ return Object.assign({},DEAL_DEF,JSON.parse(localStorage.getItem(DEAL_K)||'{}')); }catch(e){ return {...DEAL_DEF}; } };
+const dsave = c => { try{ localStorage.setItem(DEAL_K, JSON.stringify(c)); }catch(e){} };
+
+// Mánaðarliga avdráttargjaldið á einum annuitetsláni
+function pmt(principal, annualPct, years){
+  const r=(annualPct/100)/12, n=years*12;
+  if(!principal||!n) return 0;
+  if(!r) return principal/n;
+  return principal*r/(1-Math.pow(1+r,-n));
+}
+
+// Samanberiligar ognir: sama bygd, ±25% stødd. Fella aftur til allan marknaðin.
+function comps(place, area){
+  const all = MKT.rows.filter(r=>r.ppm2 && (MKTM==='all'||r.market===MKTM));
+  let c = all.filter(r=>r.place===place);
+  if(area) c = c.filter(r=>!r.area || Math.abs(r.area-area)/area<=0.25);
+  if(c.length<3) c = all.filter(r=>r.place===place);
+  if(c.length<3) c = all;
+  return c;
+}
+
+function dealTab(){
+  const c=dcfg();
+  const places=[...new Set(MKT.rows.filter(r=>MKTM==='all'||r.market===MKTM).map(r=>r.place))].sort();
+  const listings=MKT.rows.filter(r=>r.price && (MKTM==='all'||r.market===MKTM)).sort((a,b)=>String(a.place).localeCompare(String(b.place)));
+  return `<div class="panel">
+    <div class="phead"><h2>Deal-greining</h2>
+      <button class="ghost" id="dCfg">Fortreytir</button></div>
+    ${MKT.loaded && !MKT.rows.length ? `<div class="err" style="margin-bottom:16px">
+      Ongar marknaðardátur enn — greiningin brúkar tá bert tínar egnu tølir.
+      Set scraparan upp fyri at fáa samanberiligar ognir.</div>`:''}
+
+    <div id="dCfgBox" style="display:none;margin-bottom:22px" class="panel">
+      <h3>Fortreytir</h3>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Refinansiering (LTV %)</label><input id="c_ltv" type="number" value="${c.ltv}"></div>
+        <div><label>Renta %</label><input id="c_rate" type="number" step="0.1" value="${c.rate}"></div>
+        <div><label>Loputíð (ár)</label><input id="c_term" type="number" value="${c.term}"></div>
+        <div><label>Tinglýsing %</label><input id="c_stamp" type="number" step="0.1" value="${c.stampDuty}"></div>
+        <div><label>Aðrar keypsútreiðslur</label><input id="c_close" type="number" value="${c.closing}"></div>
+        <div><label>Tómstøða %</label><input id="c_vac" type="number" value="${c.vacancy}"></div>
+        <div><label>Umsiting % av leigu</label><input id="c_mgmt" type="number" value="${c.mgmt}"></div>
+        <div><label>Viðlíkahald % av virði/ár</label><input id="c_maint" type="number" step="0.1" value="${c.maint}"></div>
+      </div>
+      <h3 style="margin-top:18px">Umvælingarkostnaður (kr/m²)</h3>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Kosmetisk</label><input id="r_kos" type="number" value="${c.reno.kosmetisk}"></div>
+        <div><label>Miðal</label><input id="r_mid" type="number" value="${c.reno.midal}"></div>
+        <div><label>Fullur</label><input id="r_ful" type="number" value="${c.reno.fullur}"></div>
+        <div><label>Køkur (stk)</label><input id="r_kok" type="number" value="${c.kokk}"></div>
+        <div><label>Bað (stk)</label><input id="r_bad" type="number" value="${c.bad}"></div>
+        <div><label>Vindeyga (stk)</label><input id="r_vin" type="number" value="${c.vindeyga}"></div>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="ghost" id="dSave">Goym fortreytir</button>
+        <span class="soft" style="font-size:13px">Hesi tøl eru mett — rætta tey til tín marknað.</span></div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:12px">
+      <div><label>Marknaður</label>
+        <select id="d_market">
+          <option value="fo" ${MKTM==='fo'?'selected':''}>Føroyar</option>
+          <option value="dk" ${MKTM==='dk'?'selected':''}>Danmark</option>
+          <option value="all" ${MKTM==='all'?'selected':''}>Bæði</option>
+        </select></div>
+    </div>
+    <div class="grid2">
+      <div><label>Vel eina ogn frá marknaðinum</label>
+        <select id="d_pick"><option value="">— skriva sjálvur inn —</option>
+          ${listings.map((r,i)=>`<option value="${i}">${esc(r.place)} · ${esc(String(r.title).slice(0,40))} · ${krS(r.price)}</option>`).join('')}
+        </select></div>
+      <div><label>Bygd</label>
+        <input id="d_place" list="d_places" value="">
+        <datalist id="d_places">${places.map(p=>`<option value="${esc(p)}">`).join('')}</datalist></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label>Útbodnur prísur</label><input id="d_ask" type="number" value="2500000"></div>
+      <div><label>Stødd (m²)</label><input id="d_area" type="number" value="120"></div>
+      <div><label>Dagar á marknaðinum</label><input id="d_days" type="number" value="0"></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label>Umvælingarstig</label>
+        <select id="d_scope">
+          <option value="0">Eingin — klár at leiga út</option>
+          <option value="kosmetisk">Kosmetisk (máling, gólv)</option>
+          <option value="midal" selected>Miðal (køkur, bað, gólv)</option>
+          <option value="fullur">Fullur (alt innan)</option>
+          <option value="total">Gjøgnumgrevandi</option>
+        </select></div>
+      <div><label>Køkir / Bøð (t.d. 1/1)</label><input id="d_kb" value="1/1"></div>
+      <div><label>Vænta leiga á mána</label><input id="d_rent" type="number" value="0"></div>
+    </div>
+    <div class="row" style="margin-top:16px"><button id="dRun">Greina</button></div>
+    <div id="dOut" style="margin-top:22px"></div>
+  </div>`;
+}
+
+function initDeal(){
+  if(!MKT.loaded){ initMarket().then(()=>{ if(TAB==='deal'){ render(); } }); }
+  const cfg=dcfg();
+  const g=id=>$(id);
+  if(g('dCfg')) g('dCfg').onclick=()=>{ const b=$('dCfgBox'); b.style.display=b.style.display==='none'?'block':'none'; };
+  if(g('dSave')) g('dSave').onclick=()=>{
+    const c=dcfg();
+    c.ltv=+$('c_ltv').value; c.rate=+$('c_rate').value; c.term=+$('c_term').value;
+    c.stampDuty=+$('c_stamp').value; c.closing=+$('c_close').value;
+    c.vacancy=+$('c_vac').value; c.mgmt=+$('c_mgmt').value; c.maint=+$('c_maint').value;
+    c.reno.kosmetisk=+$('r_kos').value; c.reno.midal=+$('r_mid').value; c.reno.fullur=+$('r_ful').value;
+    c.kokk=+$('r_kok').value; c.bad=+$('r_bad').value; c.vindeyga=+$('r_vin').value;
+    dsave(c); $('dCfgBox').style.display='none';
+  };
+  if(g('d_pick')) g('d_pick').onchange=e=>{
+    const i=e.target.value; if(i==='') return;
+    const r=MKT.rows.filter(x=>x.price && (MKTM==='all'||x.market===MKTM)).sort((a,b)=>String(a.place).localeCompare(String(b.place)))[+i];
+    if(!r) return;
+    $('d_place').value=r.place||''; $('d_ask').value=Math.round(r.price||0);
+    if(r.area) $('d_area').value=Math.round(r.area);
+    if(r.days!=null) $('d_days').value=Math.round(r.days);
+  };
+  if(g('d_market')) g('d_market').onchange=e=>{ MKTM=e.target.value;
+    try{localStorage.setItem('mkt_market_627',MKTM);}catch(x){} render(); };
+  if(g('dRun')) g('dRun').onclick=runDeal;
+}
+
+function runDeal(){
+  const c=dcfg();
+  const place=$('d_place').value.trim(), ask=+$('d_ask').value||0, area=+$('d_area').value||0;
+  const days=+$('d_days').value||0, scope=$('d_scope').value;
+  const kb=($('d_kb').value||'0/0').split('/').map(x=>parseInt(x)||0);
+  const rentIn=+$('d_rent').value||0;
+
+  // ---- 1. Marknaðarnívá ----
+  const cp=comps(place,area);
+  const ppmList=cp.map(r=>r.ppm2).filter(Boolean).sort((a,b)=>a-b);
+  const med = ppmList.length? (ppmList.length%2? ppmList[ppmList.length>>1]
+            : (ppmList[(ppmList.length>>1)-1]+ppmList[ppmList.length>>1])/2) : 0;
+  const p25 = ppmList.length? ppmList[Math.floor(ppmList.length*0.25)] : 0;
+  const p75 = ppmList.length? ppmList[Math.floor(ppmList.length*0.75)] : 0;
+  const askPpm = area? ask/area : 0;
+
+  // ---- 2. Umvælingarkostnaður ----
+  let reno=0;
+  if(scope!=='0'){
+    reno = area*(c.reno[scope]||0);
+    if(scope!=='kosmetisk'){ reno += (kb[0]||0)*c.kokk + (kb[1]||0)*c.bad; }
+  }
+  // ---- 3. ARV: marknaðarnívá eftir umvæling ----
+  const arvPpm = scope==='0'? med : (scope==='kosmetisk'? med*1.02 : scope==='midal'? med*1.08 : med*1.15);
+  const arv = area*arvPpm;
+
+  // ---- 4. Hvat eigur tú at bjóða ----
+  // (a) 75%-reglan: ARV*0,75 minus umvæling
+  const bidRule = arv*0.75 - reno;
+  // (b) Út frá cashflow: tað sum ger cashflow = 0 við LTV og rentu
+  const rent = rentIn || (area*med*0.0045);   // mett leiga um einki er skrivað
+  const netRent = rent*(1-c.vacancy/100)*(1-c.mgmt/100) - (arv*c.maint/100)/12;
+  const maxPayment = netRent;
+  const r=(c.rate/100)/12, n=c.term*12;
+  const maxLoan = r? maxPayment*(1-Math.pow(1+r,-n))/r : maxPayment*n;
+  const bidCF = maxLoan/(c.ltv/100) - reno;
+  const bid = Math.min(bidRule, bidCF);
+
+  // ---- 5. Prútingarrúm út frá liggitíð ----
+  const disc = days>180?12 : days>120?9 : days>60?6 : days>30?3 : 0;
+  const likely = ask*(1-disc/100);
+
+  // ---- 6. BRRRR ----
+  const buy = bid>0? bid : ask;
+  const costs = buy*(c.stampDuty/100) + c.closing;
+  const allIn = buy + reno + costs;
+  const refi = arv*(c.ltv/100);
+  const left = allIn - refi;
+  const pay = pmt(refi, c.rate, c.term);
+  const cf = netRent - pay;
+  const coc = left>0? (cf*12)/left*100 : (cf>0? Infinity : 0);
+
+  const band = MKT.rows.filter(x=>(MKTM==='all'||x.market===MKTM) && x.price && Math.abs(x.price-arv)/arv<0.15)
+    .sort((a,b)=>Math.abs(a.price-arv)-Math.abs(b.price-arv)).slice(0,8);
+
+  const verdict = (!med) ? ['Ongar marknaðardátur','soft']
+    : askPpm && askPpm < p25 ? ['Áhugaverd — undir 25% av marknaðinum','green']
+    : askPpm && askPpm < med ? ['Undir miðal','green']
+    : askPpm && askPpm < p75 ? ['Á miðal nívá','gold']
+    : ['Dýr mót marknaðinum','red'];
+
+  $('dOut').innerHTML = `
+  <div class="panel" style="background:var(--panel2)">
+    <div class="phead"><h3>Niðurstøða</h3>
+      <span class="badge ${verdict[1]}" style="color:var(--${verdict[1]==='soft'?'soft':verdict[1]})">${verdict[0]}</span></div>
+    <div class="grid3">
+      <div class="stat"><div class="l">Eigur at bjóða</div><div class="v ${bid>0?'gold':'red'}">${bid>0?krS(bid):'—'}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">útbodnur ${krS(ask)}</div></div>
+      <div class="stat"><div class="l">Virði eftir umvæling</div><div class="v sea">${krS(arv)}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">${Math.round(arvPpm).toLocaleString('da-DK')} kr/m²</div></div>
+      <div class="stat"><div class="l">Cashflow á mána</div><div class="v ${cf>=0?'green':'red'}">${krS(cf)}</div>
+        <div class="soft mono" style="font-size:11px;margin-top:4px">CoC ${isFinite(coc)?coc.toFixed(1)+'%':'∞'}</div></div>
+    </div>
+  </div>
+
+  <div class="panel"><h3>Marknaðurin í ${esc(place||'øllum bygdum')}
+    <span class="badge" style="color:var(--${MKTM==='dk'?'gold':'sea'});margin-left:8px">${MKTM==='dk'?'Danmark':MKTM==='fo'?'Føroyar':'Bæði'}</span></h3>
+    <table><tbody>
+      <tr><td class="soft">Samanberiligar ognir</td><td class="num">${cp.length}</td></tr>
+      <tr><td class="soft">Lágt nívá (25%)</td><td class="num">${p25?Math.round(p25).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Miðal</td><td class="num sea">${med?Math.round(med).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Høgt nívá (75%)</td><td class="num">${p75?Math.round(p75).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+      <tr><td class="soft">Henda ognin</td><td class="num ${askPpm&&med&&askPpm<med?'green':'red'}">${askPpm?Math.round(askPpm).toLocaleString('da-DK')+' kr/m²':'—'}</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="panel"><h3>Umvæling og prúting</h3>
+    <table><tbody>
+      <tr><td class="soft">Umvælingarkostnaður</td><td class="num">${kr(reno)}</td></tr>
+      <tr><td class="soft">Keypsútreiðslur (tinglýsing o.a.)</td><td class="num">${kr(costs)}</td></tr>
+      <tr><td class="soft">Liggitíð</td><td class="num">${days} dagar</td></tr>
+      <tr><td class="soft">Prútingarrúm eftir liggitíð</td><td class="num ${disc?'green':''}">${disc}%</td></tr>
+      <tr><td class="soft">Sannlíkur søluprísur</td><td class="num gold">${kr(likely)}</td></tr>
+      <tr><td class="soft">Hámark eftir 75%-regluni</td><td class="num">${kr(bidRule)}</td></tr>
+      <tr><td class="soft">Hámark eftir cashflow</td><td class="num">${kr(bidCF)}</td></tr>
+    </tbody></table>
+    <div class="soft" style="margin-top:12px;font-size:14px">
+      Vit taka tað lægra av teimum tveimum. 75%-reglan verjir egnognina, cashflow-reglan verjir likviditetin.</div>
+  </div>
+
+  <div class="panel"><h3>BRRRR — hvat verður bundið</h3>
+    <table><tbody>
+      <tr><td class="soft">Keyp</td><td class="num">${kr(buy)}</td></tr>
+      <tr><td class="soft">+ Umvæling</td><td class="num">${kr(reno)}</td></tr>
+      <tr><td class="soft">+ Útreiðslur</td><td class="num">${kr(costs)}</td></tr>
+      <tr><td class="soft"><strong>= Alt í alt</strong></td><td class="num"><strong>${kr(allIn)}</strong></td></tr>
+      <tr><td class="soft">Refinansiering (${c.ltv}% av ARV)</td><td class="num sea">${kr(refi)}</td></tr>
+      <tr><td class="soft"><strong>Bundin eginfígging</strong></td><td class="num ${left<=0?'green':'gold'}"><strong>${kr(Math.max(0,left))}</strong>${left<=0?' — alt heintað aftur':''}</td></tr>
+      <tr><td class="soft">Leiga á mána</td><td class="num">${kr(rent)}</td></tr>
+      <tr><td class="soft">− tómstøða, umsiting, viðlíkahald</td><td class="num red">${kr(rent-netRent)}</td></tr>
+      <tr><td class="soft">− avdrátt og renta</td><td class="num red">${kr(pay)}</td></tr>
+      <tr><td class="soft"><strong>Cashflow á mána</strong></td><td class="num ${cf>=0?'green':'red'}"><strong>${kr(cf)}</strong></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="panel"><h3>Hvat kappast tú við eftir umvæling</h3>
+    ${band.length? table(['Heiti','Marknaður','Bygd','m²','Prísur','kr/m²','Dagar'],
+      band.map(r=>[esc(String(r.title).slice(0,46)),
+        {h:`<span class="badge" style="color:var(--${r.market==='dk'?'gold':'sea'})">${r.market==='dk'?'DK':'FO'}</span>`},
+        esc(r.place), {n:r.area?Math.round(r.area):'—'},
+        {n:krS(r.price)}, {n:r.ppm2?Math.round(r.ppm2).toLocaleString('da-DK'):'—'},
+        {n:r.days!=null?Math.round(r.days):'—'}]))
+      : '<div class="empty">Ongar samanberiligar annonsur í hesum prísbili.</div>'}
+    <div class="soft" style="margin-top:12px;font-size:14px">
+      Hesir bústaðir eru teir ein keypari velur ímillum í staðin fyri tín. Liggja teir leingi, er ARV-mettanin ov høg.</div>
+  </div>`;
+}
+
+/* ---------- actions ---------- */
+function wire(){
+  $('view').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act(b.dataset));
+}
+
+function form(title, fields, onSave){
+  $('dlgBody').innerHTML = `<h2>${title}</h2><form id="f">`+
+    fields.map(f=>{
+      if(f.type==='select')
+        return `<label>${f.label}</label><select name="${f.name}">`+
+          f.options.map(o=>`<option value="${esc(o.v)}">${esc(o.l)}</option>`).join('')+`</select>`;
+      return `<label>${f.label}</label><input name="${f.name}" type="${f.type||'text'}" value="${esc(f.value??'')}" ${f.required?'required':''}>`;
+    }).join('')+
+    `<div class="row" style="margin-top:22px"><button type="submit">Goym</button>
+     <button type="button" class="ghost" id="cancel">Avlýs</button></div>
+     <div id="fmsg"></div></form>`;
+  $('dlg').showModal();
+  $('cancel').onclick=()=>$('dlg').close();
+  $('f').onsubmit = async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target));
+    const err = await onSave(d);
+    if(err){ $('fmsg').innerHTML = `<div class="err">${esc(err)}</div>`; return; }
+    $('dlg').close(); await load(); render();
+  };
+}
+
+async function act(d){
+  const A = d.act;
+  if(A==='newCo') return form('Nýtt felag',[{label:'Navn',name:'name',required:1}],
+    async v => (await sb.from('companies').insert({name:v.name})).error?.message);
+
+  if(A==='newProp' || A==='editProp'){
+    const p = A==='editProp' ? DATA.props.find(x=>x.id===d.id) : {};
+    return form(A==='editProp'?'Rætta ogn':'Nýggj ogn',[
+      {label:'Navn',name:'name',value:p.name,required:1},
+      {label:'Bústaður',name:'address',value:p.address},
+      {label:'Felag',name:'company_id',type:'select',
+        options:[{v:'',l:'— einki —'},...DATA.companies.map(c=>({v:c.id,l:c.name}))]},
+      {label:'Keypsprísur',name:'purchase_price',type:'number',value:p.purchase_price||0},
+      {label:'Virði í dag',name:'current_value',type:'number',value:p.current_value||0},
+      {label:'Stødd (m²)',name:'area',type:'number',value:p.area||0,hint:'neyðugt fyri virðismeting'},
+      {label:'Lán (restskuld)',name:'loan_balance',type:'number',value:p.loan_balance||0},
+      {label:'Leiga á mána',name:'monthly_rent',type:'number',value:p.monthly_rent||0},
+      {label:'Útreiðslur á mána',name:'monthly_expenses',type:'number',value:p.monthly_expenses||0},
+      {label:'Umvæling',name:'renovation_cost',type:'number',value:p.renovation_cost||0},
+      {label:'Keypsdagur',name:'purchase_date',type:'date',value:p.purchase_date||''},
+      {label:'Viðmerking',name:'notes',type:'text',value:p.notes||''},
+    ], async v => {
+      const rent=+v.monthly_rent||0, exp=+v.monthly_expenses||0;
+      const row = {name:v.name, address:v.address, company_id:v.company_id||null,
+        purchase_price:+v.purchase_price, current_value:+v.current_value,
+        loan_balance:+v.loan_balance, area:+v.area||null, monthly_rent:rent, monthly_expenses:exp,
+        monthly_cashflow:rent-exp, renovation_cost:+v.renovation_cost||0,
+        purchase_date:v.purchase_date||null, notes:v.notes||null};
+      const r = A==='editProp'
+        ? await sb.from('properties').update(row).eq('id',d.id)
+        : await sb.from('properties').insert(row);
+      return r.error?.message;
+    });
+  }
+
+  if(A==='newOwner') return form('Knýt eigara at ogn',[
+    {label:'Ogn',name:'property_id',type:'select',options:DATA.props.map(p=>({v:p.id,l:p.name}))},
+    {label:'Eigari',name:'user_id',type:'select',options:DATA.profiles.map(u=>({v:u.id,l:u.full_name||u.email}))},
+    {label:'Partur (%)',name:'pct',type:'number',value:50},
+    {label:'Eginfígging (kr)',name:'capital',type:'number',value:0},
+  ], async v => (await sb.from('property_owners').insert(
+      {property_id:v.property_id,user_id:v.user_id,pct:+v.pct,capital:+v.capital})).error?.message);
+
+  if(A==='newDist') return form('Skráset útgjalding',[
+    {label:'Ogn',name:'property_id',type:'select',options:DATA.props.map(p=>({v:p.id,l:p.name}))},
+    {label:'Móttakari',name:'user_id',type:'select',options:DATA.profiles.map(u=>({v:u.id,l:u.full_name||u.email}))},
+    {label:'Upphædd',name:'amount',type:'number',required:1},
+    {label:'Dagur',name:'paid_on',type:'date'},
+    {label:'Viðmerking',name:'note'},
+  ], async v => (await sb.from('distributions').insert(
+      {property_id:v.property_id,user_id:v.user_id,amount:+v.amount,paid_on:v.paid_on||null,note:v.note})).error?.message);
+
+  if(A==='newDoc') return form('Legg skjal til',[
+    {label:'Ogn',name:'property_id',type:'select',options:DATA.props.map(p=>({v:p.id,l:p.name}))},
+    {label:'Heiti',name:'title',required:1},
+    {label:'Leinkja (t.d. Google Drive)',name:'url'},
+  ], async v => (await sb.from('documents').insert(
+      {property_id:v.property_id,title:v.title,url:v.url})).error?.message);
+
+  if(A==='openProp'){ OPEN=d.id; render(); return; }
+  if(A==='openCo'){ OPENC=d.id; render(); return; }
+  if(A==='backCos'){ OPENC=null; render(); return; }
+  if(A==='gotoProp'){ OPENC=null; OPEN=d.id; TAB='ognir'; renderTabs(); render(); return; }
+  if(A==='backProps'){ OPEN=null; render(); return; }
+  if(A==='role'){
+    await sb.from('profiles').update({role:d.r}).eq('id',d.id);
+    await load(); render(); return;
+  }
+  const dels = {delOwner:'property_owners', delDist:'distributions', delDoc:'documents'};
+  if(dels[A]){
+    if(!confirm('Strika?')) return;
+    await sb.from(dels[A]).delete().eq('id',d.id);
+    await load(); render();
+  }
+}
+</script>
+</body>
+</html>
