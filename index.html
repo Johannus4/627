@@ -156,7 +156,7 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&
 
 let ME=null, ROLE='investor', TAB='yvirlit';
 let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[],ploans:[],units:[],cowners:[],partyloans:[]};
-let OPEN=null;  // ogn sum er opin
+let OPEN=null, OPENC=null;  // ogn / felag sum er opið
 
 /* ---------- auth ---------- */
 $('loginForm').onsubmit = async e => {
@@ -197,7 +197,7 @@ async function boot(session){
 
 function renderTabs(){
   const t = ROLE==='admin'
-    ? [['yvirlit','Yvirlit'],['ognir','Ognir'],['eigarar','Eigarar'],['marknadur','Marknaður'],['utgjald','Útgjaldingar'],['skjol','Skjøl'],['brukarar','Brúkarar']]
+    ? [['yvirlit','Yvirlit'],['ognir','Ognir'],['felog','Feløg'],['eigarar','Eigarar'],['marknadur','Marknaður'],['utgjald','Útgjaldingar'],['skjol','Skjøl'],['brukarar','Brúkarar']]
     : [['yvirlit','Yvirlit'],['minognir','Mínar ognir'],['utgjald','Mínar útgjaldingar'],['skjol','Skjøl']];
   if(!t.find(x=>x[0]===TAB)) TAB=t[0][0];
   $('tabs').innerHTML = t.map(([k,l])=>`<button data-t="${k}" class="${k===TAB?'on':''}">${l}</button>`).join('');
@@ -240,6 +240,7 @@ function render(){
   const v = $('view');
   if(TAB==='yvirlit')       v.innerHTML = ROLE==='admin' ? adminOverview() : investorOverview();
   else if(TAB==='ognir')    v.innerHTML = OPEN ? propDetail() : propsTab();
+  else if(TAB==='felog')    v.innerHTML = OPENC ? compDetail() : compsTab();
   else if(TAB==='eigarar')  v.innerHTML = ownersTab();
   else if(TAB==='minognir') v.innerHTML = myProps();
   else if(TAB==='utgjald')  v.innerHTML = distTab();
@@ -309,6 +310,97 @@ function myProps(){
         <tr><td class="soft">Frívirði tilsamans</td><td class="num">${kr(c.equity)}</td></tr>
       </tbody></table></div>`;
   }).join('');
+}
+
+// ---------- Feløg: listi og smálutir ----------
+const ownerLabel = r => r.parent_company ? coName(r.parent_company)
+                     : r.user_id ? uName(r.user_id)
+                     : (r.external_name || '—');
+
+function compsTab(){
+  const rows = DATA.companies.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  return `<div class="panel"><div class="phead"><h2>Feløg</h2>
+    <button class="ghost" data-act="newCo">+ Nýtt felag</button></div>
+    ${rows.length? table(['Felag','Slag','Ognir','Eigarar','Skyldar','Til góðar'],
+      rows.map(c=>{
+        const props = DATA.props.filter(p=>p.company_id===c.id);
+        const owners= DATA.cowners.filter(o=>o.company_id===c.id);
+        const owes  = DATA.partyloans.filter(l=>l.borrower_company===c.id && !l.repaid)
+                        .reduce((s,l)=>s+(l.amount||0),0);
+        const due   = DATA.partyloans.filter(l=>l.lender_company===c.id && !l.repaid)
+                        .reduce((s,l)=>s+(l.amount||0),0);
+        return [
+          {h:`<a href="#" data-act="openCo" data-id="${c.id}" style="color:var(--gold);text-decoration:none;font-weight:600">${esc(c.name)}</a>`},
+          esc(c.kind||''), {n:props.length}, {n:owners.length},
+          {n:owes?krS(owes):'—', c:owes?'red':''}, {n:due?krS(due):'—', c:due?'green':''}];
+      })) : '<div class="empty">Ongi feløg.</div>'}</div>`;
+}
+
+function compDetail(){
+  const c = DATA.companies.find(x=>x.id===OPENC);
+  if(!c){ OPENC=null; return compsTab(); }
+  const props  = DATA.props.filter(p=>p.company_id===c.id);
+  const owners = DATA.cowners.filter(o=>o.company_id===c.id);
+  const ownsCo = DATA.cowners.filter(o=>o.parent_company===c.id);
+  const owes   = DATA.partyloans.filter(l=>l.borrower_company===c.id);
+  const due    = DATA.partyloans.filter(l=>l.lender_company===c.id);
+  const val    = props.reduce((s,p)=>s+(p.current_value||0),0);
+  const loan   = props.reduce((s,p)=>s+(p.loan_balance||0),0);
+  const owesT  = owes.filter(l=>!l.repaid).reduce((s,l)=>s+(l.amount||0),0);
+  const dueT   = due.filter(l=>!l.repaid).reduce((s,l)=>s+(l.amount||0),0);
+  const equity = val - loan - owesT + dueT;
+  const lender = l => l.lender_company ? coName(l.lender_company)
+                    : l.lender_user ? uName(l.lender_user) : (l.lender_external||'—');
+
+  return `<div class="row" style="margin-bottom:18px">
+      <button class="ghost" data-act="backCos">← Øll feløg</button></div>
+    <div class="panel">
+      <h2>${esc(c.name)}</h2>
+      <div class="soft" style="margin-bottom:18px">${esc(c.kind||'')}${c.cvr?' · V-tal '+esc(c.cvr):''}${c.founded_date?' · stovnað '+esc(c.founded_date):''}${c.website?' · <a href="'+esc(c.website)+'" target="_blank" rel="noopener" style="color:var(--sea)">'+esc(c.website)+'</a>':''}</div>
+      <div class="grid3">
+        <div class="stat"><div class="l">Ognavirði</div><div class="v gold">${krS(val)}</div></div>
+        <div class="stat"><div class="l">Lán á ognum</div><div class="v red">${krS(loan)}</div></div>
+        <div class="stat"><div class="l">Eginogn eftir lán</div>
+          <div class="v ${equity>=0?'sea':'red'}">${krS(equity)}</div></div>
+      </div>
+      ${(owesT||dueT)?`<div class="soft" style="margin-top:14px;font-size:14px">
+        Eginognin er ognavirði minus lán á ognunum${owesT?`, minus ${kr(owesT)} sum felagið skyldar eigarum`:''}${dueT?`, plus ${kr(dueT)} sum felagið hevur til góðar`:''}.</div>`:''}
+    </div>
+
+    <div class="panel"><h3>Hvør eigur ${esc(c.name)}</h3>
+      ${owners.length? table(['Eigari','Partur'],
+        owners.map(o=>[esc(ownerLabel(o)), {n:(o.pct||0).toFixed(1)+'%'}]))
+        : '<div class="empty">Eigarastrukturur ikki skrásettur.</div>'}
+    </div>
+
+    ${ownsCo.length?`<div class="panel"><h3>${esc(c.name)} eigur partar í</h3>
+      ${table(['Felag','Partur'], ownsCo.map(o=>[esc(coName(o.company_id)), {n:(o.pct||0).toFixed(1)+'%'}]))}
+    </div>`:''}
+
+    <div class="panel"><h3>Ognir</h3>
+      ${props.length? table(['Ogn','Virði','Lán','Frívirði'],
+        props.map(p=>[
+          {h:`<a href="#" data-act="gotoProp" data-id="${p.id}" style="color:var(--gold);text-decoration:none">${esc(p.name)}</a>`},
+          {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
+          {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'}]))
+        : '<div class="empty">Ongar ognir.</div>'}
+    </div>
+
+    <div class="panel"><h3>Lán INN — ${esc(c.name)} skyldar</h3>
+      ${owes.length? table(['Lánari','Upphædd','Renta','Dagur','Støða'],
+        owes.map(l=>[esc(lender(l)), {n:kr(l.amount),c:'red'},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'}, esc(l.loan_date||'—'),
+          l.repaid?'Endurgoldið':'Óendurgoldið']))
+        : '<div class="empty">Eingin skuld til eigarar.</div>'}
+    </div>
+
+    <div class="panel"><h3>Lán ÚT — ${esc(c.name)} hevur til góðar</h3>
+      ${due.length? table(['Lántakari','Upphædd','Renta','Dagur','Støða'],
+        due.map(l=>[esc(coName(l.borrower_company)), {n:kr(l.amount),c:'green'},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'}, esc(l.loan_date||'—'),
+          l.repaid?'Endurgoldið':'Óendurgoldið']))
+        : '<div class="empty">Eingin hevur lænt av hesum felagnum.</div>'}
+    </div>`;
 }
 
 function propDetail(){
@@ -408,14 +500,15 @@ function propsTab(){
 }
 
 function ownersTab(){
-  return `<div class="panel"><div class="phead"><h2>Eigarar</h2>
+  return `<div class="panel"><div class="phead"><h2>Eigarar av ognum</h2>
     <button class="ghost" data-act="newOwner">+ Knýt eigara at ogn</button></div>
     ${DATA.owners.length? table(
       ['Ogn','Eigari','Partur','Eginfígging','Frívirði','Reel vinningur',''],
       DATA.owners.map(o=>{
         const p=DATA.props.find(x=>x.id===o.property_id)||{};
         const c=calc(p,o);
-        return [esc(pName(o.property_id)), esc(uName(o.user_id)),
+        return [esc(pName(o.property_id)),
+          esc(o.user_id ? uName(o.user_id) : (o.external_name||'—')),
           {n:(o.pct||0).toFixed(1)+'%'}, {n:krS(o.capital)},
           {n:krS(c.share),c:'gold'}, {n:krS(c.gain),c:c.gain>=0?'green':'red'},
           {h:`<button class="danger" data-act="delOwner" data-id="${o.id}">Strika</button>`}];
@@ -741,6 +834,9 @@ async function act(d){
       {property_id:v.property_id,title:v.title,url:v.url})).error?.message);
 
   if(A==='openProp'){ OPEN=d.id; render(); return; }
+  if(A==='openCo'){ OPENC=d.id; render(); return; }
+  if(A==='backCos'){ OPENC=null; render(); return; }
+  if(A==='gotoProp'){ OPENC=null; OPEN=d.id; TAB='ognir'; renderTabs(); render(); return; }
   if(A==='backProps'){ OPEN=null; render(); return; }
   if(A==='role'){
     await sb.from('profiles').update({role:d.r}).eq('id',d.id);
