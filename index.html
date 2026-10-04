@@ -9478,29 +9478,41 @@ const MarketView = ({ properties, entities }) => {
 };
 
 // ============================================================
-// EIGARAKORT — spælispælið yvir alt: hvør eigur hvat
-// Persónar ovast, feløg í miðjuni, ognir niðast.
+// EIGARAKORT — alt sæð frá tær
+// Hvør kassi vísir, hvussu stóran part TÚ eigur — roknað
+// gjøgnum alla keðuna, ikki bert beinleiðis.
 // ============================================================
 const OwnershipMap = ({ properties, entities, onOpenProperty, onOpenEntity }) => {
+  const [showAll, setShowAll] = React.useState(false);
   const [focus, setFocus] = React.useState(null);
 
-  // ---- 1. Hvør djúpt liggur hvørt felag? ----
-  const byId = {};
-  entities.forEach(e => { byId[e.id] = e; });
+  const me = entities.find(e => e.id === SELF_ID);
+  const myName = me ? me.name : 'Eg';
+
+  // ---- Mín effektivi partur ----
+  const myShareEnt = id => entityShareOf(id, entities, SELF_ID);
+  const myShareProp = p => propertyShareOf(p, entities, SELF_ID);
+
+  // ---- Djúpd ----
+  const byId = {}; entities.forEach(e => { byId[e.id] = e; });
   const depth = {};
-  const calcDepth = (id, seen) => {
+  const calc = (id, seen) => {
     if (depth[id] != null) return depth[id];
-    if (seen.has(id)) return 0;                  // verji móti ringrás
+    if (seen.has(id)) return 0;
     seen.add(id);
     const e = byId[id];
     if (!e || e.type === 'person' || !(e.parents || []).length) return (depth[id] = 0);
-    const d = 1 + Math.max(...e.parents.map(p =>
-      (p.entityId && p.entityId !== 'external' && byId[p.entityId]) ? calcDepth(p.entityId, seen) : 0));
-    return (depth[id] = d);
+    return (depth[id] = 1 + Math.max(...e.parents.map(p =>
+      (p.entityId && p.entityId !== 'external' && byId[p.entityId]) ? calc(p.entityId, seen) : 0)));
   };
-  entities.forEach(e => calcDepth(e.id, new Set()));
+  entities.forEach(e => calc(e.id, new Set()));
 
-  // ---- 2. Uttanhýsis eigarar sum egnir pettir ----
+  // ---- Hvat hoyrir til meg? ----
+  const mine = new Set([SELF_ID]);
+  entities.forEach(e => { if (myShareEnt(e.id) > 0.0001) mine.add(e.id); });
+  properties.forEach(p => { if (myShareProp(p) > 0.0001) mine.add('p:' + p.id); });
+
+  // ---- Pettir ----
   const externals = {};
   entities.forEach(e => (e.parents || []).forEach(p => {
     if (p.entityId === 'external' && p.externalName) externals['x:' + p.externalName] = p.externalName;
@@ -9509,136 +9521,196 @@ const OwnershipMap = ({ properties, entities, onOpenProperty, onOpenEntity }) =>
     if (o.entityId === 'external' && o.externalName) externals['x:' + o.externalName] = o.externalName;
   }));
 
-  // ---- 3. Legg pettirnar út í teigar ----
   const maxD = Math.max(0, ...Object.values(depth));
-  const cols = [];
-  for (let i = 0; i <= maxD + 1; i++) cols.push([]);
+  const cols = []; for (let i = 0; i <= maxD + 1; i++) cols.push([]);
 
-  Object.keys(externals).forEach(k => cols[0].push({ id: k, name: externals[k], kind: 'uttanífrá' }));
+  const keep = id => showAll || mine.has(id);
+
+  // Eg skal standa fyrst í fyrsta teigi
+  const self = entities.find(e => e.id === SELF_ID);
+  if (self) cols[0].push({ id: SELF_ID, name: self.name, kind: 'eg', share: 1, ent: self });
   entities.forEach(e => {
+    if (e.id === SELF_ID) return;
     const d = e.type === 'person' ? 0 : (depth[e.id] || 0);
-    cols[d].push({ id: e.id, name: e.name, kind: e.type === 'person' ? 'persónur' : 'felag', ent: e });
+    const sh = myShareEnt(e.id);
+    if (!keep(e.id)) return;
+    cols[d].push({ id: e.id, name: e.name, kind: e.type === 'person' ? 'persónur' : 'felag', share: sh, ent: e });
   });
-  properties.forEach(p => cols[maxD + 1].push({ id: 'p:' + p.id, name: p.name, kind: 'ogn', prop: p }));
+  if (showAll) Object.keys(externals).forEach(k =>
+    cols[0].push({ id: k, name: externals[k], kind: 'uttanífrá', share: 0 }));
+  properties.forEach(p => {
+    if (!keep('p:' + p.id)) return;
+    cols[maxD + 1].push({ id: 'p:' + p.id, name: p.name, kind: 'ogn',
+                          share: myShareProp(p), prop: p });
+  });
 
-  // ---- 4. Mál og støður ----
-  const COL_W = 230, NODE_H = 46, GAP = 16, PAD = 40;
-  const colH = cols.map(c => c.length * (NODE_H + GAP));
-  const H = Math.max(260, Math.max(...colH) + PAD * 2);
+  const COL_W = 260, NW = 196, NODE_H = 62, GAP = 14, PAD = 36;
+  const H = Math.max(300, Math.max(...cols.map(c => c.length)) * (NODE_H + GAP) + PAD * 2);
   const W = cols.length * COL_W + PAD * 2;
   const pos = {};
   cols.forEach((col, ci) => {
     const start = (H - col.length * (NODE_H + GAP)) / 2 + PAD / 2;
-    col.forEach((n, ri) => {
-      pos[n.id] = { x: PAD + ci * COL_W, y: start + ri * (NODE_H + GAP), node: n };
-    });
+    col.forEach((n, ri) => { pos[n.id] = { x: PAD + ci * COL_W, y: start + ri * (NODE_H + GAP), node: n }; });
   });
 
-  // ---- 5. Streingir ----
   const links = [];
   entities.forEach(e => (e.parents || []).forEach(p => {
     const from = p.entityId === 'external' ? 'x:' + (p.externalName || '') : p.entityId;
     if (pos[from] && pos[e.id]) links.push({ from, to: e.id, pct: p.pct || 0 });
   }));
   properties.forEach(p => {
-    const owners = (p.owners && p.owners.length) ? p.owners
-      : [{ entityId: SELF_ID, pct: p.ownershipPct ?? 100 }];
+    const owners = (p.owners && p.owners.length) ? p.owners : [{ entityId: SELF_ID, pct: p.ownershipPct ?? 100 }];
     owners.forEach(o => {
       const from = o.entityId === 'external' ? 'x:' + (o.externalName || '') : o.entityId;
       if (pos[from] && pos['p:' + p.id]) links.push({ from, to: 'p:' + p.id, pct: o.pct || 0 });
     });
   });
 
-  // ---- 6. Hvat skal lýsast upp? ----
   const lit = new Set();
   if (focus) {
     lit.add(focus);
-    let changed = true;
-    while (changed) {                      // alt sum hongur saman við tí valda
-      changed = false;
-      links.forEach(l => {
-        if (lit.has(l.from) && !lit.has(l.to)) { lit.add(l.to); changed = true; }
-        if (lit.has(l.to) && !lit.has(l.from)) { lit.add(l.from); changed = true; }
-      });
-    }
+    let ch = true;
+    while (ch) { ch = false; links.forEach(l => {
+      if (lit.has(l.from) && !lit.has(l.to)) { lit.add(l.to); ch = true; }
+      if (lit.has(l.to) && !lit.has(l.from)) { lit.add(l.from); ch = true; } }); }
   }
   const on = id => !focus || lit.has(id);
 
-  const COLOR = { 'persónur': '#2A6B5E', 'uttanífrá': '#8A8A8A', 'felag': '#2A3B52', 'ogn': '#B8922A' };
+  const C = { eg: '#1F5E52', 'persónur': '#2A6B5E', 'uttanífrá': '#9A9A9A', felag: '#2A3B52', ogn: '#B8922A' };
+  const pct = v => (v * 100).toFixed(v * 100 < 10 ? 1 : 0) + '%';
+
+  // ---- Samandráttur ----
+  let myVal = 0, myEq = 0;
+  properties.forEach(p => {
+    const sh = myShareProp(p);
+    if (sh <= 0) return;
+    const m = propertyMetrics(p, entities);
+    myVal += (p.currentValue || 0) * sh;
+    myEq += ((p.currentValue || 0) - m.currentBalance) * sh;
+  });
 
   return /*#__PURE__*/React.createElement("div", { className: "space-y-6" },
     /*#__PURE__*/React.createElement("header", { className: "border-b border-line pb-6 flex items-end justify-between gap-4 flex-wrap" },
       /*#__PURE__*/React.createElement("div", null,
-        /*#__PURE__*/React.createElement("div", { className: "section-title" }, "Strukturur"),
+        /*#__PURE__*/React.createElement("div", { className: "section-title" }, "Alt sæð frá " + myName),
         /*#__PURE__*/React.createElement("h1", { className: "font-display text-5xl mt-2 leading-none" }, "Eigarakort"),
         /*#__PURE__*/React.createElement("p", { className: "text-sm text-ink-soft mt-3 max-w-2xl" },
-          "Trýst á ein pett fyri at síggja bert tað sum hongur saman við honum. Trýst aftur fyri at sleppa.")),
-      focus ? /*#__PURE__*/React.createElement("button", { className: "btn-ghost", onClick: () => setFocus(null) }, "Vís alt") : null),
+          "Prosenttalið í hvørjum kassa er tín egni partur, roknaður gjøgnum alla keðuna. "
+          + "Talið á strikuni er beinleiðis eigarapartur.")),
+      /*#__PURE__*/React.createElement("div", { className: "flex gap-2" },
+        focus ? /*#__PURE__*/React.createElement("button", { className: "btn-ghost", onClick: () => setFocus(null) }, "Vís alt aftur") : null,
+        /*#__PURE__*/React.createElement("button", { className: "btn-ghost", onClick: () => setShowAll(!showAll) },
+          showAll ? "Bert mítt" : "Vís eisini hitt"))),
+
+    /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-3 gap-4" },
+      /*#__PURE__*/React.createElement("div", { className: "bg-paper-2 border border-line p-4" },
+        /*#__PURE__*/React.createElement("div", { className: "text-xs uppercase tracking-wider text-ink-soft font-body" }, "Mítt ognavirði"),
+        /*#__PURE__*/React.createElement("div", { className: "font-display text-3xl mt-1 text-gold" }, fmtKrShort(myVal))),
+      /*#__PURE__*/React.createElement("div", { className: "bg-paper-2 border border-line p-4" },
+        /*#__PURE__*/React.createElement("div", { className: "text-xs uppercase tracking-wider text-ink-soft font-body" }, "Mítt frívirði"),
+        /*#__PURE__*/React.createElement("div", { className: "font-display text-3xl mt-1 text-green" }, fmtKrShort(myEq))),
+      /*#__PURE__*/React.createElement("div", { className: "bg-paper-2 border border-line p-4" },
+        /*#__PURE__*/React.createElement("div", { className: "text-xs uppercase tracking-wider text-ink-soft font-body" }, "Feløg og ognir"),
+        /*#__PURE__*/React.createElement("div", { className: "font-display text-3xl mt-1" }, mine.size - 1))),
 
     /*#__PURE__*/React.createElement("div", { className: "flex gap-5 flex-wrap text-xs font-body text-ink-soft" },
-      Object.entries(COLOR).map(([k, c]) => /*#__PURE__*/React.createElement("span", { key: k, className: "flex items-center gap-2" },
-        /*#__PURE__*/React.createElement("span", { style: { width: 11, height: 11, background: c, display: 'inline-block' } }), k))),
+      Object.entries(C).filter(([k]) => showAll || (k !== 'uttanífrá' && k !== 'persónur'))
+        .map(([k, c]) => /*#__PURE__*/React.createElement("span", { key: k, className: "flex items-center gap-2" },
+          /*#__PURE__*/React.createElement("span", { style: { width: 11, height: 11, background: c, display: 'inline-block' } }),
+          k === 'eg' ? myName : k))),
 
     /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line", style: { overflowX: 'auto' } },
       /*#__PURE__*/React.createElement("svg", { width: W, height: H, style: { minWidth: W, display: 'block' } },
-
         links.map((l, i) => {
           const a = pos[l.from], b = pos[l.to];
           if (!a || !b) return null;
-          const x1 = a.x + COL_W - 60, y1 = a.y + NODE_H / 2;
-          const x2 = b.x, y2 = b.y + NODE_H / 2;
+          const x1 = a.x + NW, y1 = a.y + NODE_H / 2, x2 = b.x, y2 = b.y + NODE_H / 2;
           const mx = (x1 + x2) / 2;
-          const active = on(l.from) && on(l.to);
-          return /*#__PURE__*/React.createElement("g", { key: i, opacity: active ? 1 : 0.12 },
+          const act = on(l.from) && on(l.to);
+          const mineLink = mine.has(l.from) && mine.has(l.to);
+          return /*#__PURE__*/React.createElement("g", { key: i, opacity: act ? 1 : 0.1 },
             /*#__PURE__*/React.createElement("path", {
               d: `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`,
-              fill: "none", stroke: "#B9B2A6",
-              strokeWidth: Math.max(1, Math.min(4, (l.pct || 0) / 25))
-            }),
-            l.pct ? /*#__PURE__*/React.createElement("text", {
-              x: mx, y: (y1 + y2) / 2 - 4, textAnchor: "middle",
-              style: { font: '10px "IBM Plex Mono", monospace', fill: '#7A7A7A' }
-            }, l.pct + "%") : null);
+              fill: "none", stroke: mineLink ? "#1F5E52" : "#C4BDB1",
+              strokeWidth: Math.max(1.2, Math.min(5, (l.pct || 0) / 20)) }),
+            /*#__PURE__*/React.createElement("rect", {
+              x: mx - 19, y: (y1 + y2) / 2 - 17, width: 38, height: 15,
+              fill: "#FFFFFF", stroke: "#E2DDD3" }),
+            /*#__PURE__*/React.createElement("text", {
+              x: mx, y: (y1 + y2) / 2 - 6, textAnchor: "middle",
+              style: { font: '600 10px "IBM Plex Mono", monospace', fill: '#5A5A5A' } },
+              (l.pct || 0) + "%"));
         }),
-
         Object.values(pos).map(({ x, y, node }) => {
-          const active = on(node.id);
+          const act = on(node.id);
+          const isMe = node.kind === 'eg';
+          const sel = node.id === focus;
           return /*#__PURE__*/React.createElement("g", {
-            key: node.id, opacity: active ? 1 : 0.18, style: { cursor: 'pointer' },
+            key: node.id, opacity: act ? 1 : 0.15, style: { cursor: 'pointer' },
             onClick: () => {
-              if (focus === node.id) {
+              if (sel) {
                 if (node.prop && onOpenProperty) return onOpenProperty(node.prop);
-                if (node.ent && onOpenEntity) return onOpenEntity(node.ent);
+                if (node.ent && node.ent.id !== SELF_ID && onOpenEntity) return onOpenEntity(node.ent);
                 return setFocus(null);
               }
               setFocus(node.id);
-            }
-          },
+            } },
             /*#__PURE__*/React.createElement("rect", {
-              x, y, width: COL_W - 60, height: NODE_H,
-              fill: node.id === focus ? COLOR[node.kind] : '#FFFFFF',
-              stroke: COLOR[node.kind], strokeWidth: node.id === focus ? 2 : 1
-            }),
-            /*#__PURE__*/React.createElement("rect", {
-              x, y, width: 4, height: NODE_H, fill: COLOR[node.kind]
-            }),
+              x, y, width: NW, height: NODE_H,
+              fill: isMe || sel ? C[node.kind] : '#FFFFFF',
+              stroke: C[node.kind], strokeWidth: isMe || sel ? 2 : 1 }),
+            /*#__PURE__*/React.createElement("rect", { x, y, width: 5, height: NODE_H, fill: C[node.kind] }),
             /*#__PURE__*/React.createElement("text", {
-              x: x + 14, y: y + 20,
-              style: { font: '600 12px Inter, sans-serif',
-                       fill: node.id === focus ? '#FFFFFF' : '#2A2A2A' }
-            }, String(node.name || '—').slice(0, 22)),
+              x: x + 15, y: y + 21,
+              style: { font: '600 12.5px Inter, sans-serif', fill: isMe || sel ? '#FFFFFF' : '#2A2A2A' } },
+              String(node.name || '—').slice(0, 20)),
+            node.kind !== 'uttanífrá' ? /*#__PURE__*/React.createElement("text", {
+              x: x + 15, y: y + 41,
+              style: { font: '700 15px "IBM Plex Mono", monospace',
+                       fill: isMe || sel ? '#FFFFFF' : (node.share > 0 ? '#1F5E52' : '#9A9A9A') } },
+              node.share > 0 ? pct(node.share) : '—') : null,
+            node.kind !== 'uttanífrá' ? /*#__PURE__*/React.createElement("text", {
+              x: x + 62, y: y + 41,
+              style: { font: '10px Inter, sans-serif',
+                       fill: isMe || sel ? 'rgba(255,255,255,.7)' : '#8A8A8A' } },
+              isMe ? '' : 'mítt') : null,
+            node.prop ? /*#__PURE__*/React.createElement("text", {
+              x: x + NW - 14, y: y + 41, textAnchor: "end",
+              style: { font: '11px "IBM Plex Mono", monospace',
+                       fill: sel ? 'rgba(255,255,255,.8)' : '#8A8A8A' } },
+              fmtKrShort((node.prop.currentValue || 0) * node.share)) : null,
             /*#__PURE__*/React.createElement("text", {
-              x: x + 14, y: y + 35,
-              style: { font: '10px "IBM Plex Mono", monospace',
-                       fill: node.id === focus ? 'rgba(255,255,255,.75)' : '#8A8A8A' }
-            }, node.prop
-                ? fmtKrShort(node.prop.currentValue || 0)
-                : node.kind));
+              x: x + 15, y: y + 55,
+              style: { font: '9px Inter, sans-serif',
+                       fill: isMe || sel ? 'rgba(255,255,255,.6)' : '#A5A5A5',
+                       letterSpacing: '.08em', textTransform: 'uppercase' } },
+              node.prop ? 'ogn · mítt virði' : node.kind));
         }))),
 
-    /*#__PURE__*/React.createElement("div", { className: "text-xs text-ink-soft font-body" },
-      "Tjúkkleikin á strikuni vísir hvussu stórur eigarapartur er. "
-      + "Trýst tvær ferðir á ein pett fyri at lata ognina ella felagið upp."));
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-4" }, "Mínir partar í tølum"),
+      /*#__PURE__*/React.createElement("div", { style: { overflowX: 'auto' } },
+        /*#__PURE__*/React.createElement("table", { className: "w-full" },
+          /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null,
+            ["Hvat", "Slag", "Mín partur", "Heilt virði", "Mítt virði"].map((h, i) =>
+              /*#__PURE__*/React.createElement("th", { key: i,
+                className: "py-2 px-3 border-b border-line text-xs uppercase tracking-wider text-ink-soft font-body " + (i ? "text-right" : "text-left") }, h)))),
+          /*#__PURE__*/React.createElement("tbody", null,
+            [...entities.filter(e => e.id !== SELF_ID && myShareEnt(e.id) > 0.0001)
+               .map(e => ({ name: e.name, kind: 'felag', sh: myShareEnt(e.id), val: null, ent: e })),
+             ...properties.filter(p => myShareProp(p) > 0.0001)
+               .map(p => ({ name: p.name, kind: 'ogn', sh: myShareProp(p), val: p.currentValue || 0, prop: p }))]
+            .sort((a, b) => b.sh - a.sh)
+            .map((r, i) => /*#__PURE__*/React.createElement("tr", { key: i,
+              style: { cursor: 'pointer' },
+              onClick: () => { if (r.prop && onOpenProperty) onOpenProperty(r.prop);
+                               else if (r.ent && onOpenEntity) onOpenEntity(r.ent); } },
+              /*#__PURE__*/React.createElement("td", { className: "py-2 px-3 border-b border-line text-sm" }, r.name),
+              /*#__PURE__*/React.createElement("td", { className: "py-2 px-3 border-b border-line text-right text-sm font-body text-ink-soft" }, r.kind),
+              /*#__PURE__*/React.createElement("td", { className: "py-2 px-3 border-b border-line text-right font-mono text-sm", style: { color: '#1F5E52', fontWeight: 600 } }, pct(r.sh)),
+              /*#__PURE__*/React.createElement("td", { className: "py-2 px-3 border-b border-line text-right font-mono text-sm" }, r.val != null ? fmtKrShort(r.val) : '—'),
+              /*#__PURE__*/React.createElement("td", { className: "py-2 px-3 border-b border-line text-right font-mono text-sm text-gold" }, r.val != null ? fmtKrShort(r.val * r.sh) : '—')))))))
+  );
 };
 
 // ---- Vandi & heilsa: síðan ----------------------------------
