@@ -833,17 +833,113 @@ async function cloudLoad() {
 }
 window.__PF_CLOUDPULL__ = cloudLoad;
 
+// ============================================================
+// ENDURSKOÐANARSPOR
+// Finnur sjálvt út av, hvat varð broytt — felt fyri felt.
+// ============================================================
+const AUDIT_FIELDS = {
+  currentValue:'Virði', purchasePrice:'Keypsprísur', renovationCost:'Umvæling',
+  monthlyRent:'Leiga', monthlyExpenses:'Útreiðslur', ownCapital:'Eginfígging',
+  partnerCapital:'Partnara eginfígging', loanCosts:'Lánsútreiðslur',
+  name:'Navn', address:'Bústaður', propertyType:'Slag', rentalStrategy:'Strategi',
+  ownershipPct:'Eigarapartur', notes:'Viðmerking',
+  cash:'Peningur', monthlyRevenue:'Inntøka', monthlyFixedCosts:'Fastar útreiðslur',
+  monthlyVariableCosts:'Broytiligar útreiðslur', estimatedValue:'Mett virði', cvr:'V-tal'
+};
+const auditFmt = v => {
+  if (v === null || v === undefined || v === '') return '—';
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
+};
+
+function diffList(oldArr, newArr, scope) {
+  const out = [];
+  const oldById = {};
+  (oldArr || []).forEach(x => { oldById[x.id] = x; });
+  const seen = {};
+  (newArr || []).forEach(n => {
+    seen[n.id] = true;
+    const o = oldById[n.id];
+    if (!o) {
+      out.push({ scope, subject_id: n.id, subject: n.name || '—',
+                 field: '(stovnað)', old_value: null, new_value: n.name || '—' });
+      return;
+    }
+    Object.keys(AUDIT_FIELDS).forEach(f => {
+      if (!(f in n) && !(f in o)) return;
+      const a = auditFmt(o[f]), b = auditFmt(n[f]);
+      if (a !== b) out.push({ scope, subject_id: n.id, subject: n.name || o.name || '—',
+                              field: AUDIT_FIELDS[f], old_value: a, new_value: b });
+    });
+    // Eigarar og lán eru listar — vit skráseta at teir broyttust
+    [['owners','Eigarar'],['loans','Lán'],['units','Eindir'],
+     ['capitalByOwner','Eginfígging per eigara'],['ownerLoans','Lán frá eigarum']].forEach(([k,l]) => {
+      const a = JSON.stringify(o[k] || null), b = JSON.stringify(n[k] || null);
+      if (a !== b) out.push({ scope, subject_id: n.id, subject: n.name || '—',
+                              field: l, old_value: 'broytt', new_value: 'broytt' });
+    });
+  });
+  (oldArr || []).forEach(o => {
+    if (!seen[o.id]) out.push({ scope, subject_id: o.id, subject: o.name || '—',
+                                field: '(strikað)', old_value: o.name || '—', new_value: null });
+  });
+  return out;
+}
+
+let AUDIT_PREV = null;   // tað sum stóð, tá vit seinast goymdu
+
+async function writeAudit(prev, next) {
+  if (!prev) return;
+  try {
+    const rows = [
+      ...diffList(prev.properties, next.properties, 'ogn'),
+      ...diffList(prev.entities,   next.entities,   'felag')
+    ];
+    if (!rows.length) return;
+    const u = (await sb.auth.getUser()).data?.user;
+    await sb.from('audit_log').insert(rows.map(r => ({
+      ...r, user_id: u?.id || null, user_email: u?.email || null
+    })));
+  } catch (e) {
+    console.warn('audit', e);   // sporið má aldri steðga eini goyming
+  }
+}
+
+async function noteHealth(ok, errText) {
+  try {
+    const cur = (await sb.from('save_health').select('*').eq('id', CLOUD_ROW).maybeSingle()).data || {};
+    await sb.from('save_health').upsert({
+      id: CLOUD_ROW,
+      last_ok: ok ? new Date().toISOString() : (cur.last_ok || null),
+      last_error: ok ? cur.last_error : errText,
+      last_error_at: ok ? cur.last_error_at : new Date().toISOString(),
+      ok_count: (cur.ok_count || 0) + (ok ? 1 : 0),
+      error_count: (cur.error_count || 0) + (ok ? 0 : 1)
+    }, { onConflict: 'id' });
+  } catch (e) {}
+}
+
 async function cloudSave(payload) {
   if (!sb) throw new Error('Supabase-clienturin er ikki lastur');
-  const uid = (await sb.auth.getUser()).data?.user?.id || null;
-  const { data, error } = await sb.from(CLOUD_TABLE).upsert({
-    id: CLOUD_ROW, data: payload,
-    updated_at: new Date().toISOString(), updated_by: uid
-  }, { onConflict: 'id' }).select('updated_at').maybeSingle();
-  if (error) throw error;
-  // Lokalt avrit sum neyðloysn um netið dettur út
-  try { localStorage.setItem('mcgavin_portfolio_v1', JSON.stringify(payload)); } catch (e) {}
-  return data;
+  try {
+    const uid = (await sb.auth.getUser()).data?.user?.id || null;
+    const { data, error } = await sb.from(CLOUD_TABLE).upsert({
+      id: CLOUD_ROW, data: payload,
+      updated_at: new Date().toISOString(), updated_by: uid
+    }, { onConflict: 'id' }).select('updated_at').maybeSingle();
+    if (error) throw error;
+    await writeAudit(AUDIT_PREV, payload);
+    AUDIT_PREV = JSON.parse(JSON.stringify(payload));
+    try { localStorage.setItem('mcgavin_portfolio_v1', JSON.stringify(payload)); } catch (e) {}
+    noteHealth(true);
+    if (window.__PF_SAVEOK__) window.__PF_SAVEOK__();
+    return data;
+  } catch (e) {
+    noteHealth(false, sbErrText(e));
+    if (window.__PF_SAVEFAIL__) window.__PF_SAVEFAIL__(sbErrText(e));
+    throw e;
+  }
 }
 
 const clockNow = d => {
@@ -1240,6 +1336,157 @@ const propertyMetrics = (p, entities, asOfDate = new Date(), myEntityId = SELF_I
     dscr
   };
 };
+
+// ============================================================
+// VANDI & HEILSA — portfolioið sum heild
+// Tað ein professionellur íleggjari og ein bankastjóri spyrja um:
+// kann portfolioið bera seg, og hvat hendir um nakað broytist?
+// ============================================================
+
+// ---- 1. Dátukvalitetur ------------------------------------
+// Eitt tal sum einki er skjalprógvað er eitt tal ein banki ikki
+// tekur í mun. Her finna vit tað sum mangla ella ikki stemmar.
+function dataIssues(properties, entities) {
+  const out = [];
+  const add = (sev, subject, msg, fix) => out.push({ sev, subject, msg, fix });
+
+  (properties || []).forEach(p => {
+    const m = propertyMetrics(p, entities);
+    const nm = p.name || 'Ogn uttan navn';
+
+    // Eigarapartar skulu geva 100%
+    const owners = (p.owners && p.owners.length) ? p.owners
+      : [{ entityId: SELF_ID, pct: p.ownershipPct ?? 100 }];
+    const sum = owners.reduce((s, o) => s + (o.pct || 0), 0);
+    if (Math.abs(sum - 100) > 0.05)
+      add('hátt', nm, `Eigarapartar geva ${sum.toFixed(1)}%, ikki 100%`,
+          'Rætta partarnar undir Eigarar');
+
+    // Virði uttan kelda
+    const vs = p.valueSource || {};
+    if (!vs.kind)
+      add('hátt', nm, 'Virðið er ikki skjalprógvað',
+          'Set kelda og dagfesting undir Tøl');
+    else if (vs.date && (Date.now() - new Date(vs.date)) / 864e5 > 365)
+      add('miðal', nm, 'Virðismetingin er eldri enn eitt ár',
+          'Dagfør metingina');
+
+    // Lán størri enn virði
+    if (p.currentValue > 0 && m.currentBalance > p.currentValue)
+      add('hátt', nm, `Lánið (${fmtKrShort(m.currentBalance)}) er størri enn virðið (${fmtKrShort(p.currentValue)})`,
+          'Kanna um virðið er ov lágt sett, ella um lánið er skeivt');
+
+    // Vantandi grundtøl
+    if (!p.currentValue) add('hátt', nm, 'Einki virði skrásett', 'Skriva virðið inn');
+    if (!p.purchasePrice) add('miðal', nm, 'Eingin keypsprísur', 'Skriva keypsprísin inn');
+    if (!p.purchaseDate) add('lágt', nm, 'Eingin keypsdagur', 'Skriva dagin inn');
+    if (p.propertyType !== 'flip' && !m.effectiveRent)
+      add('miðal', nm, 'Eingin leiga skrásett', 'Skriva leiguna inn');
+
+    // Lán uttan rentu ella loputíð
+    (p.loans || []).forEach(l => {
+      if (l.status === 'closed') return;
+      if (!l.interestRate) add('hátt', nm, `Lánið "${l.label || 'uttan navn'}" hevur onga rentu`, 'Skriva rentuna inn');
+      if (!l.termMonths)   add('miðal', nm, `Lánið "${l.label || 'uttan navn'}" hevur onga loputíð`, 'Skriva loputíðina inn');
+      if (!l.startDate)    add('miðal', nm, `Lánið "${l.label || 'uttan navn'}" hevur ongan byrjunardag`, 'Skriva dagin inn');
+    });
+
+    // Eginfígging per eigara stemmar ikki við tað samlaða
+    const cbo = p.capitalByOwner || {};
+    const cboSum = Object.values(cbo).reduce((s, v) => s + (+v || 0), 0);
+    if (cboSum > 0 && m.autoEginfig > 0 && Math.abs(cboSum - m.autoEginfig) / m.autoEginfig > 0.25)
+      add('lágt', nm, `Eginfígging per eigara (${fmtKrShort(cboSum)}) víkur munandi frá tí roknaðu (${fmtKrShort(m.autoEginfig)})`,
+          'Kanna um tølini eru rætt — tað kann vera rætt um pengar eru lagdir inn aftaná keypið');
+  });
+
+  (entities || []).forEach(e => {
+    if (e.type === 'person') return;
+    const par = e.parents || [];
+    if (!par.length) { add('miðal', e.name, 'Eingin eigarastrukturur skrásettur', 'Set eigararnar undir Eigarar'); return; }
+    const sum = par.reduce((s, x) => s + (x.pct || 0), 0);
+    if (Math.abs(sum - 100) > 0.05)
+      add('hátt', e.name, `Eigarapartar geva ${sum.toFixed(1)}%, ikki 100%`, 'Rætta partarnar');
+  });
+
+  const rank = { 'hátt': 0, 'miðal': 1, 'lágt': 2 };
+  return out.sort((a, b) => rank[a.sev] - rank[b.sev]);
+}
+
+// ---- 2. Portfolio-tøl og stress ---------------------------
+function portfolioRisk(properties, entities) {
+  let value = 0, debt = 0, noi = 0, debtService = 0, rent = 0, exp = 0;
+  const rows = [], byPlace = {}, byType = {};
+  let fixedDebt = 0, varDebt = 0, ioDebt = 0;
+
+  (properties || []).forEach(p => {
+    const m = propertyMetrics(p, entities);
+    value += p.currentValue || 0;
+    debt  += m.currentBalance;
+    noi   += m.noi;
+    debtService += m.loanMonthlyTotal * 12;
+    rent  += m.effectiveRent * 12;
+    exp   += m.effectiveExp * 12;
+
+    const place = (p.address || p.name || '—').split(',')[0].trim();
+    byPlace[place] = (byPlace[place] || 0) + (p.currentValue || 0);
+    const t = p.propertyType || 'rental';
+    byType[t] = (byType[t] || 0) + (p.currentValue || 0);
+
+    (p.loans || []).forEach(l => {
+      if (l.status === 'closed') return;
+      const bal = m.currentBalance;
+      if ((l.rateHistory || []).length > 1 || l.type === 'variabel') varDebt += bal; else fixedDebt += bal;
+      if ((l.interestOnlyMonths || 0) > 0) ioDebt += bal;
+    });
+
+    rows.push({ p, m, ltv: m.ltv, dscr: m.dscr });
+  });
+
+  const equity = value - debt;
+  const ltv = value > 0 ? debt / value : 0;
+  const dscr = debtService > 0 ? noi / debtService : 0;
+  const icr = debtService > 0 ? noi / debtService : 0;
+
+  // Rentustress: hvat hendir um rentan fer upp?
+  const rateStress = [0, 1, 2, 3].map(pp => {
+    let ds = 0;
+    (properties || []).forEach(p => {
+      const m = propertyMetrics(p, entities);
+      const l = (p.loans || []).find(x => x.status === 'active') || (p.loans || [])[0];
+      if (!l) return;
+      const bal = m.currentBalance;
+      const r0 = (l.interestRate || 0), r1 = r0 + pp / 100;
+      const n = Math.max(1, (l.termMonths || 360) - m.monthsElapsed);
+      const pay = r1 ? bal * (r1 / 12) / (1 - Math.pow(1 + r1 / 12, -n)) : bal / n;
+      ds += pay * 12;
+    });
+    return { pp, debtService: ds, dscr: ds > 0 ? noi / ds : 0, cashflow: noi - ds };
+  });
+
+  // Virðisstress: hvat um marknaðurin fellur?
+  const valueStress = [0, 10, 20, 30].map(pct => {
+    const v = value * (1 - pct / 100);
+    const breach = rows.filter(r => {
+      const nv = (r.p.currentValue || 0) * (1 - pct / 100);
+      return nv > 0 && r.m.currentBalance / nv > 0.80;
+    });
+    return { pct, value: v, ltv: v > 0 ? debt / v : 0, equity: v - debt, breach };
+  });
+
+  // Tómstøða: hvussu nógv tol er í portfolioinum?
+  const vacancyStress = [0, 1, 3, 6].map(months => {
+    const lost = rent / 12 * months;
+    return { months, cashflow: noi - debtService - lost };
+  });
+
+  const concentration = Object.entries(byPlace)
+    .map(([k, v]) => ({ k, v, pct: value > 0 ? v / value : 0 }))
+    .sort((a, b) => b.v - a.v);
+
+  return { value, debt, equity, ltv, noi, debtService, dscr, icr, rent, exp,
+           rows, concentration, byType, rateStress, valueStress, vacancyStress,
+           fixedDebt, varDebt, ioDebt };
+}
 
 // ============================================================
 // SKATTAMODELLAR — Føroyar
@@ -2922,6 +3169,20 @@ const Sidebar = ({
     className: "ml-auto text-xs opacity-60"
   }, entities.length)), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
+      setView('risk');
+      setSelected(null);
+    },
+    className: `w-full text-left px-3 py-2.5 flex items-center gap-3 text-sm ${view === 'risk' ? 'bg-ink-soft' : 'hover:bg-ink-soft/50'}`
+  }, /*#__PURE__*/React.createElement(AlertCircle, {
+    size: 16
+  }), " Vandi & heilsa ", (() => {
+    const n = dataIssues(properties, entities).filter(x => x.sev === 'hátt').length;
+    return n ? /*#__PURE__*/React.createElement("span", {
+      className: "ml-auto text-xs px-1.5",
+      style: { background: '#C9655A', color: '#fff' }
+    }, n) : null;
+  })()), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
       setView('help');
       setSelected(null);
     },
@@ -4274,6 +4535,55 @@ const OwnerCapitalEditor = ({ property, entities, update }) => {
           " Tølini niðanfyri eru mett sjálvvirkandi — skriva tey inn fyri at fáa tey rætt."))));
 };
 
+// ============================================================
+// HVAR VEITST TÚ TAÐ FRÁ?
+// Hvørt virði skal hava eina kelda og eina dagfesting. Uttan tað
+// er talið bert ein mettan — og tað er fyrsti spurningurin frá
+// einum banka ella einum grannskoðara.
+// ============================================================
+const VALUE_SOURCES = [
+  { code:'',             label:'— ikki skrásett —',                 rank:9 },
+  { code:'handil',       label:'Veruligur handil (skøyti)',         rank:1 },
+  { code:'virdismeting', label:'Virðismeting frá meklara/banka',    rank:2 },
+  { code:'kommunal',     label:'Kommunal/almenn virðismeting',      rank:3 },
+  { code:'marknadur',    label:'Mett út frá marknaðinum (kr/m²)',   rank:4 },
+  { code:'egin',         label:'Egin mettan',                       rank:5 }
+];
+
+const ValueSource = ({ property, onUpdate }) => {
+  const vs = property.valueSource || {};
+  const set = (k, v) => onUpdate({ ...property, valueSource: { ...vs, [k]: v } });
+  const meta = VALUE_SOURCES.find(x => x.code === (vs.kind || '')) || VALUE_SOURCES[0];
+  const age = vs.date ? Math.round((Date.now() - new Date(vs.date)) / 864e5) : null;
+  const stale = age != null && age > 365;
+  const tone = !vs.kind ? 'text-red' : meta.rank <= 2 ? 'text-green' : meta.rank <= 3 ? 'text-gold' : 'text-ink-soft';
+  return /*#__PURE__*/React.createElement("div", { className: "col-span-2 border border-line bg-paper-2 p-4 mt-2" },
+    /*#__PURE__*/React.createElement("div", { className: "flex items-baseline justify-between mb-3 gap-2 flex-wrap" },
+      /*#__PURE__*/React.createElement("label", { className: "text-xs uppercase tracking-wider text-ink-soft font-body" },
+        "Hvar kemur virðið frá?"),
+      /*#__PURE__*/React.createElement("span", { className: "text-xs font-mono " + tone },
+        !vs.kind ? "ikki skjalprógvað" : stale ? "eldri enn 1 ár" : "skjalprógvað")),
+    /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-2 gap-3" },
+      /*#__PURE__*/React.createElement("div", null,
+        /*#__PURE__*/React.createElement("div", { className: "text-xs uppercase tracking-wider text-ink-soft mb-1.5 font-body" }, "Kelda"),
+        /*#__PURE__*/React.createElement("select", {
+          value: vs.kind || '', onChange: e => set('kind', e.target.value),
+          className: "input-field input-field-text"
+        }, VALUE_SOURCES.map(o => /*#__PURE__*/React.createElement("option",
+          { key: o.code, value: o.code }, o.label)))),
+      /*#__PURE__*/React.createElement(Field, {
+        label: "Dagfesting", type: "date", value: vs.date || '',
+        onChange: v => set('date', v)
+      })),
+    /*#__PURE__*/React.createElement(Field, {
+      label: "Tilvísing", type: "text", value: vs.ref || '',
+      onChange: v => set('ref', v),
+      hint: "t.d. skjalnr., meklari, ella hvør metti"
+    }),
+    stale ? /*#__PURE__*/React.createElement("div", { className: "text-xs text-gold font-body mt-2" },
+      "Hetta virðið er " + Math.round(age/30) + " mánaðir gamalt. Dagfør tað áðrenn tú brúkar tað til nakað týðandi.") : null);
+};
+
 const EditTab = ({
   property,
   entities = [],
@@ -4470,6 +4780,9 @@ const EditTab = ({
     property: property,
     onUpdate: onUpdate,
     suffix: "kr"
+  }), /*#__PURE__*/React.createElement(ValueSource, {
+    property: property,
+    onUpdate: onUpdate
   }))), /*#__PURE__*/React.createElement("div", {
     className: "bg-paper border border-line p-6"
   }, /*#__PURE__*/React.createElement("div", {
@@ -8948,6 +9261,144 @@ const normalizeData = d => {
   return { properties, entities };
 };
 
+// ---- Vandi & heilsa: síðan ----------------------------------
+const RiskView = ({ properties, entities }) => {
+  const R = portfolioRisk(properties, entities);
+  const issues = dataIssues(properties, entities);
+  const sevColor = s => s === 'hátt' ? 'text-red' : s === 'miðal' ? 'text-gold' : 'text-ink-soft';
+  const pc = v => (v * 100).toFixed(1) + '%';
+  const dscrTone = d => d >= 1.25 ? 'text-green' : d >= 1.0 ? 'text-gold' : 'text-red';
+  const ltvTone  = l => l <= 0.70 ? 'text-green' : l <= 0.80 ? 'text-gold' : 'text-red';
+
+  const Card = ({ label, value, tone, note }) =>
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper-2 border border-line p-4" },
+      /*#__PURE__*/React.createElement("div", { className: "text-xs uppercase tracking-wider text-ink-soft font-body" }, label),
+      /*#__PURE__*/React.createElement("div", { className: "font-display text-3xl mt-1 " + (tone || '') }, value),
+      note ? /*#__PURE__*/React.createElement("div", { className: "text-xs text-ink-soft font-mono mt-1" }, note) : null);
+
+  const Row = (cells, key) => /*#__PURE__*/React.createElement("tr", { key },
+    cells.map((c, i) => /*#__PURE__*/React.createElement("td", {
+      key: i, className: "py-2 px-3 border-b border-line " + (i ? "text-right font-mono text-sm " : "text-sm ") + (c.cls || '')
+    }, c.v !== undefined ? c.v : c)));
+
+  const Table = (head, rows) => /*#__PURE__*/React.createElement("div", { style: { overflowX: 'auto' } },
+    /*#__PURE__*/React.createElement("table", { className: "w-full" },
+      /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null,
+        head.map((h, i) => /*#__PURE__*/React.createElement("th", {
+          key: i,
+          className: "py-2 px-3 border-b border-line text-xs uppercase tracking-wider text-ink-soft font-body " + (i ? "text-right" : "text-left")
+        }, h)))),
+      /*#__PURE__*/React.createElement("tbody", null, rows)));
+
+  return /*#__PURE__*/React.createElement("div", { className: "space-y-6" },
+
+    /*#__PURE__*/React.createElement("header", { className: "border-b border-line pb-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title" }, "Portfolio"),
+      /*#__PURE__*/React.createElement("h1", { className: "font-display text-5xl mt-2 leading-none" }, "Vandi & heilsa"),
+      /*#__PURE__*/React.createElement("p", { className: "text-sm text-ink-soft mt-3 max-w-2xl" },
+        "Tað ein banki og ein professionellur íleggjari spyrja um: ber portfolioið seg, "
+        + "og hvat hendir um rentan fer upp, virðini falla, ella ein ogn stendur tóm?")),
+
+    /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-4 gap-4" },
+      Card({ label: "Virði", value: fmtKrShort(R.value), tone: "text-gold" }),
+      Card({ label: "Skuld", value: fmtKrShort(R.debt), tone: "text-red" }),
+      Card({ label: "Frívirði", value: fmtKrShort(R.equity), tone: "text-green" }),
+      Card({ label: "LTV", value: pc(R.ltv), tone: ltvTone(R.ltv),
+             note: R.ltv > 0.80 ? "yvir 80% — bankar verða varnir" : "undir 80%" })),
+
+    /*#__PURE__*/React.createElement("div", { className: "grid grid-cols-3 gap-4" },
+      Card({ label: "DSCR", value: isFinite(R.dscr) ? R.dscr.toFixed(2) + "x" : "—",
+             tone: dscrTone(R.dscr),
+             note: R.dscr >= 1.25 ? "sunt" : R.dscr >= 1.0 ? "tunt" : "undir 1,0 — tú leggur til" }),
+      Card({ label: "Nettodriftsinntøka (árliga)", value: fmtKrShort(R.noi) }),
+      Card({ label: "Lánaýtingar (árliga)", value: fmtKrShort(R.debtService), tone: "text-red" })),
+
+    // ---- Dátukvalitetur ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "flex items-center justify-between mb-4" },
+        /*#__PURE__*/React.createElement("div", { className: "section-title" }, "Dátukvalitetur"),
+        /*#__PURE__*/React.createElement("div", { className: "text-sm font-mono " + (issues.filter(i=>i.sev==='hátt').length ? "text-red" : "text-green") },
+          issues.length ? issues.length + " viðmerkingar" : "alt í lagi")),
+      issues.length
+        ? Table(["Ogn / felag", "Viðmerking", "Hvat skal gerast", "Álvarsemi"],
+            issues.slice(0, 40).map((it, i) => Row([
+              it.subject,
+              { v: it.msg, cls: "text-left font-body" },
+              { v: it.fix, cls: "text-left font-body text-ink-soft" },
+              { v: it.sev, cls: sevColor(it.sev) }
+            ], i)))
+        : /*#__PURE__*/React.createElement("div", { className: "text-sm text-ink-soft italic" },
+            "Ongar viðmerkingar — øll grundtøl eru á plássi og skjalprógvað.")),
+
+    // ---- Rentustress ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-2" }, "Um rentan fer upp"),
+      /*#__PURE__*/React.createElement("p", { className: "text-sm text-ink-soft mb-4" },
+        "Roknað á teimum lánum sum eru í gongd, við teirri loputíð sum er eftir."),
+      Table(["Renta", "Lánaýtingar", "DSCR", "Cashflow um árið"],
+        R.rateStress.map((x, i) => Row([
+          x.pp === 0 ? "sum nú" : "+" + x.pp + " prosentstig",
+          fmtKrShort(x.debtService),
+          { v: isFinite(x.dscr) ? x.dscr.toFixed(2) + "x" : "—", cls: dscrTone(x.dscr) },
+          { v: fmtKrShort(x.cashflow), cls: x.cashflow >= 0 ? "text-green" : "text-red" }
+        ], i))),
+      /*#__PURE__*/React.createElement("div", { className: "text-xs text-ink-soft font-body mt-3" },
+        "Fast renta: ", fmtKrShort(R.fixedDebt), " · broytilig: ", fmtKrShort(R.varDebt),
+        R.ioDebt ? " · avdráttarfrítt: " + fmtKrShort(R.ioDebt) : "")),
+
+    // ---- Virðisstress ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-2" }, "Um marknaðurin fellur"),
+      Table(["Fall", "Virði", "LTV", "Frívirði", "Ognir yvir 80% LTV"],
+        R.valueStress.map((x, i) => Row([
+          x.pct === 0 ? "sum nú" : "−" + x.pct + "%",
+          fmtKrShort(x.value),
+          { v: pc(x.ltv), cls: ltvTone(x.ltv) },
+          { v: fmtKrShort(x.equity), cls: x.equity >= 0 ? "text-green" : "text-red" },
+          { v: x.breach.length ? x.breach.map(b => b.p.name).join(", ") : "ongar",
+            cls: "text-left font-body " + (x.breach.length ? "text-red" : "text-ink-soft") }
+        ], i)))),
+
+    // ---- Tómstøða ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-2" }, "Um ognirnar standa tómar"),
+      Table(["Tómstøða", "Cashflow um árið"],
+        R.vacancyStress.map((x, i) => Row([
+          x.months === 0 ? "eingin" : x.months + (x.months === 1 ? " mánaður" : " mánaðir"),
+          { v: fmtKrShort(x.cashflow), cls: x.cashflow >= 0 ? "text-green" : "text-red" }
+        ], i))),
+      /*#__PURE__*/React.createElement("div", { className: "text-xs text-ink-soft font-body mt-3" },
+        "Roknað sum um allar ognir stóðu tómar samstundis — tað versta førið.")),
+
+    // ---- Kyknun ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-2" }, "Kyknun"),
+      /*#__PURE__*/React.createElement("p", { className: "text-sm text-ink-soft mb-4" },
+        "Hvussu nógv liggur sama staðið? Liggur ov nógv eitt stað, er ein lokal kreppa ein vandi fyri alt portfolioið."),
+      Table(["Stað", "Virði", "Partur av portfolioinum"],
+        R.concentration.map((c, i) => Row([
+          c.k, fmtKrShort(c.v),
+          { v: pc(c.pct), cls: c.pct > 0.40 ? "text-red" : c.pct > 0.25 ? "text-gold" : "" }
+        ], i)))),
+
+    // ---- Per ogn ----
+    /*#__PURE__*/React.createElement("div", { className: "bg-paper border border-line p-6" },
+      /*#__PURE__*/React.createElement("div", { className: "section-title mb-4" }, "Hvør ogn fyri seg"),
+      Table(["Ogn", "Virði", "Skuld", "LTV", "DSCR", "Cashflow/mána"],
+        R.rows.map((r, i) => Row([
+          r.p.name,
+          fmtKrShort(r.p.currentValue),
+          fmtKrShort(r.m.currentBalance),
+          { v: pc(r.ltv), cls: ltvTone(r.ltv) },
+          { v: isFinite(r.dscr) && r.dscr ? r.dscr.toFixed(2) + "x" : "—", cls: dscrTone(r.dscr) },
+          { v: fmtKrShort(r.m.cashflowMonthly), cls: r.m.cashflowMonthly >= 0 ? "text-green" : "text-red" }
+        ], i)))),
+
+    /*#__PURE__*/React.createElement("div", { className: "text-xs text-ink-soft font-body" },
+      "DSCR er nettodriftsinntøka býtt við lánaýtingar. Undir 1,0 merkir at ognin ikki ber "
+      + "seg sjálv. Bankar vilja vanliga síggja 1,2 ella meira, og LTV undir 80%."));
+};
+
 function App() {
   const LS_KEY = 'mcgavin_portfolio_v1';
 
@@ -9046,6 +9497,7 @@ function App() {
         const row = await cloudLoad();
         if (dead) return;
         if (row && row.data && Array.isArray(row.data.properties)) {
+          AUDIT_PREV = JSON.parse(JSON.stringify(row.data));
           applyRemote(row);
           readyRef.current = true;
         } else {
@@ -9215,6 +9667,9 @@ function App() {
     properties: visibleProperties,
     setView: setView,
     setSelected: setSelected
+  }), view === 'risk' && /*#__PURE__*/React.createElement(RiskView, {
+    properties: properties,
+    entities: entities
   }), view === 'help' && /*#__PURE__*/React.createElement(HelpView, null), view === 'detail' && selectedProperty && /*#__PURE__*/React.createElement(PropertyDetail, {
     property: selectedProperty,
     entities: entities,
@@ -9343,6 +9798,83 @@ window.__PF_TEMPLATE__ = '<!DOCTYPE html>\n' + document.documentElement.outerHTM
     if(pr.data && pr.data.role === 'admin') start(); else { await sb.auth.signOut(); show(); }
   });
 
+  // ---- Goyming feilaði: tað skal vera ógjørligt at yvirhoyra ----
+  (function(){
+    var bar=null;
+    window.__PF_SAVEFAIL__=function(txt){
+      if(!bar){
+        bar=document.createElement('div');
+        bar.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999999;'
+          +'background:#8E2F26;color:#fff;padding:12px 18px;font-family:Inter,sans-serif;'
+          +'font-size:14px;display:flex;gap:14px;align-items:center;justify-content:center;'
+          +'box-shadow:0 2px 14px rgba(0,0,0,.4)';
+        document.body.appendChild(bar);
+      }
+      bar.innerHTML='<strong>IKKI GOYMT</strong><span>'
+        + String(txt).replace(/</g,'&lt;')
+        + '</span><span style="opacity:.8">Broytingarnar liggja bert í hesi fløguni — '
+        + 'lat hana ikki aftur áðrenn tað eydnast.</span>';
+      bar.style.display='flex';
+      document.title='⚠ IKKI GOYMT — Portfolio';
+    };
+    window.__PF_SAVEOK__=function(){
+      if(bar) bar.style.display='none';
+      document.title='Portfolio — Ognarliga Yvirlit';
+    };
+    // Vár um at lata aftur við ógoymdum broytingum
+    window.addEventListener('beforeunload', function(e){
+      if(bar && bar.style.display!=='none'){ e.preventDefault(); e.returnValue=''; return ''; }
+    });
+  })();
+
+  // ---- Endurskoðanarspor: lesiligt yvirlit ----
+  (function(){
+    var panel=null;
+    async function open(){
+      if(!panel){
+        panel=document.createElement('div');
+        panel.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(10,14,18,.94);'
+          +'overflow:auto;padding:40px 20px;font-family:Inter,sans-serif;color:#E8EDEA';
+        document.body.appendChild(panel);
+      }
+      panel.style.display='block';
+      panel.innerHTML='<div style="max-width:1000px;margin:0 auto">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'
+        +'<h2 style="font-family:\'Barlow Condensed\',sans-serif;font-size:30px;text-transform:uppercase;'
+        +'letter-spacing:.04em;margin:0">Endurskoðanarspor</h2>'
+        +'<button id="auX" style="background:none;border:1px solid rgba(158,178,184,.3);color:#4E9C8F;'
+        +'padding:6px 14px;cursor:pointer;font-family:inherit">Lat aftur</button></div>'
+        +'<p style="color:#93A3A9;font-size:14px;margin-bottom:18px">'
+        +'Hvør broytti hvat og nær. Linjurnar kunnu ikki rættast ella strikast — '
+        +'hvørki av tær ella av mær.</p><div id="auB">Heintar…</div></div>';
+      document.getElementById('auX').onclick=function(){ panel.style.display='none'; };
+      var r = await sb.from('audit_log').select('*').order('at',{ascending:false}).limit(300);
+      var b=document.getElementById('auB');
+      if(r.error) return b.textContent='Kundi ikki heinta: '+r.error.message;
+      if(!r.data.length) return b.innerHTML='<em style="color:#93A3A9">Ongar broytingar skrásettar enn.</em>';
+      var rows=r.data.map(function(x){
+        var d=new Date(x.at);
+        return '<tr style="border-bottom:1px solid rgba(158,178,184,.15)">'
+          +'<td style="padding:8px 10px;font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:#93A3A9">'
+          + d.toLocaleString('da-DK') + '</td>'
+          +'<td style="padding:8px 10px;font-size:13px">'+(x.user_email||'—')+'</td>'
+          +'<td style="padding:8px 10px;font-size:13px">'+(x.subject||'—')+'</td>'
+          +'<td style="padding:8px 10px;font-size:13px;color:#4E9C8F">'+(x.field||'')+'</td>'
+          +'<td style="padding:8px 10px;font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:#C9655A">'
+          +(x.old_value==null?'—':String(x.old_value).slice(0,28))+'</td>'
+          +'<td style="padding:8px 10px;font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:#5FA882">'
+          +(x.new_value==null?'—':String(x.new_value).slice(0,28))+'</td></tr>';
+      }).join('');
+      b.innerHTML='<table style="width:100%;border-collapse:collapse">'
+        +'<thead><tr style="border-bottom:1px solid rgba(158,178,184,.3)">'
+        +['Nær','Hvør','Hvat','Felt','Áðrenn','Eftir'].map(function(h){
+          return '<th style="text-align:left;padding:8px 10px;font-size:10px;letter-spacing:.14em;'
+            +'text-transform:uppercase;color:#93A3A9;font-family:\'IBM Plex Mono\',monospace">'+h+'</th>';
+        }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>';
+    }
+    window.__PF_AUDIT__=open;
+  })();
+
   // Lítil bjálki við brúkaranavni og útritan
   function mountBar(){
     sb.auth.getUser().then(function(u){
@@ -9373,7 +9905,12 @@ window.__PF_TEMPLATE__ = '<!DOCTYPE html>\n' + document.documentElement.outerHTM
           document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }catch(e){ alert('Villa: '+e.message); }
       };
-      bar.appendChild(exp); bar.appendChild(out);
+      var aud=document.createElement('button');
+      aud.textContent='Spor';
+      aud.title='Hvør broytti hvat og nær';
+      aud.style.cssText=out.style.cssText;
+      aud.onclick=function(){ window.__PF_AUDIT__(); };
+      bar.appendChild(aud); bar.appendChild(exp); bar.appendChild(out);
       document.body.appendChild(bar);
     });
   }
