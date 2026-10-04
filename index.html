@@ -155,7 +155,8 @@ const krS = n => { n = n||0; const a=Math.abs(n);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 let ME=null, ROLE='investor', TAB='yvirlit';
-let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[]};
+let DATA={props:[],owners:[],dists:[],docs:[],companies:[],profiles:[],ploans:[],units:[],cowners:[],partyloans:[]};
+let OPEN=null;  // ogn sum er opin
 
 /* ---------- auth ---------- */
 $('loginForm').onsubmit = async e => {
@@ -211,6 +212,10 @@ async function load(){
   DATA.dists     = await q('distributions');
   DATA.docs      = await q('documents');
   DATA.companies = await q('companies');
+  DATA.ploans    = await q('property_loans');
+  DATA.units     = await q('property_units');
+  DATA.cowners   = await q('company_owners');
+  DATA.partyloans= await q('party_loans');
   DATA.profiles  = ROLE==='admin' ? await q('profiles') : [ME];
 }
 
@@ -234,7 +239,7 @@ function calc(p, own){
 function render(){
   const v = $('view');
   if(TAB==='yvirlit')       v.innerHTML = ROLE==='admin' ? adminOverview() : investorOverview();
-  else if(TAB==='ognir')    v.innerHTML = propsTab();
+  else if(TAB==='ognir')    v.innerHTML = OPEN ? propDetail() : propsTab();
   else if(TAB==='eigarar')  v.innerHTML = ownersTab();
   else if(TAB==='minognir') v.innerHTML = myProps();
   else if(TAB==='utgjald')  v.innerHTML = distTab();
@@ -306,13 +311,93 @@ function myProps(){
   }).join('');
 }
 
+function propDetail(){
+  const p = DATA.props.find(x=>x.id===OPEN);
+  if(!p){ OPEN=null; return propsTab(); }
+  const loans = DATA.ploans.filter(l=>l.property_id===p.id);
+  const units = DATA.units.filter(u=>u.property_id===p.id);
+  const owns  = DATA.owners.filter(o=>o.property_id===p.id);
+  const docs  = DATA.docs.filter(d=>d.property_id===p.id);
+  const equity = (p.current_value||0)-(p.loan_balance||0);
+  const totalCap = p.total_capital||0;
+  const surplus = equity-totalCap;
+  const line = (l,v,cls) => `<tr><td class="soft">${l}</td><td class="num ${cls||''}">${v}</td></tr>`;
+  const ownerName = o => o.user_id ? uName(o.user_id) : (o.external_name||'—');
+
+  return `<div class="row" style="margin-bottom:18px">
+      <button class="ghost" data-act="backProps">← Allar ognir</button>
+      <button class="ghost" data-act="editProp" data-id="${p.id}">Rætta</button></div>
+
+    <div class="panel">
+      <h2>${esc(p.name)}</h2>
+      <div class="soft" style="margin-bottom:18px">${esc(p.address||'')}${p.company_id?' · '+esc(coName(p.company_id)):''}</div>
+      <div class="grid3">
+        <div class="stat"><div class="l">Virði í dag</div><div class="v gold">${krS(p.current_value)}</div></div>
+        <div class="stat"><div class="l">Frívirði</div><div class="v sea">${krS(equity)}</div></div>
+        <div class="stat"><div class="l">CF á mána</div>
+          <div class="v ${(p.monthly_cashflow||0)>=0?'green':'red'}">${krS(p.monthly_cashflow)}</div></div>
+      </div>
+    </div>
+
+    <div class="panel"><h3>Tølini</h3>
+      <table><tbody>
+        ${line('Keypsprísur', kr(p.purchase_price))}
+        ${p.purchase_date?line('Keypsdagur', esc(p.purchase_date)):''}
+        ${line('Umvæling', kr(p.renovation_cost))}
+        ${line('Virði í dag', kr(p.current_value),'gold')}
+        ${line('Lán (restskuld)', kr(p.loan_balance),'red')}
+        ${line('Frívirði', kr(equity),'sea')}
+        ${line('Leiga á mána', kr(p.monthly_rent))}
+        ${line('Útreiðslur á mána', kr(p.monthly_expenses))}
+        ${line('Cashflow á mána', kr(p.monthly_cashflow), (p.monthly_cashflow||0)>=0?'green':'red')}
+        ${line('Eginfígging tilsamans', kr(totalCap))}
+        ${line('At býta', kr(surplus), surplus>=0?'green':'red')}
+        ${p.rental_strategy?line('Strategi', esc(p.rental_strategy)):''}
+        ${line('Slag', esc(p.property_type||'—'))}
+      </tbody></table>
+      ${p.notes?`<div style="margin-top:16px"><div class="l soft" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase">Viðmerking</div>
+        <div style="margin-top:6px;white-space:pre-wrap">${esc(p.notes)}</div></div>`:''}
+    </div>
+
+    <div class="panel"><h3>Eigarar</h3>
+      ${owns.length? table(['Eigari','Partur','Eginfígging','Frívirði','Reel vinningur'],
+        owns.map(o=>{
+          const pct=(o.pct||0)/100, gain=surplus*pct;
+          return [esc(ownerName(o)), {n:(o.pct||0).toFixed(2)+'%'}, {n:kr(o.capital)},
+                  {n:kr((o.capital||0)+gain),c:'gold'}, {n:kr(gain),c:gain>=0?'green':'red'}];
+        })) : '<div class="empty">Ongir eigarar skrásettir.</div>'}
+    </div>
+
+    <div class="panel"><h3>Lán</h3>
+      ${loans.length? table(['Navn','Høvuðsstólur','Renta','Ár','Byrjað'],
+        loans.map(l=>[esc(l.name||'Lán'), {n:kr(l.principal)},
+          {n:((l.interest_rate||0)*100).toFixed(2)+'%'},
+          {n:l.term_years||'—'}, esc(l.start_date||'—')]))
+        : '<div class="empty">Ongi lán skrásett.</div>'}
+    </div>
+
+    <div class="panel"><h3>Útleigueindir</h3>
+      ${units.length? table(['Eind','Leiga á mána','m²','Viðmerking'],
+        units.map(u=>[esc(u.name||'Eind'), {n:kr(u.monthly_rent)},
+          {n:u.area||'—'}, esc(u.note||'')]))
+        : '<div class="empty">Ongar eindir skrásettar.</div>'}
+    </div>
+
+    <div class="panel"><h3>Skjøl</h3>
+      ${docs.length? table(['Heiti',''], docs.map(d=>[esc(d.title),
+        {h:d.url?`<a href="${esc(d.url)}" target="_blank" rel="noopener" style="color:var(--sea)">Lat upp ↗</a>`:''}]))
+        : '<div class="empty">Ongi skjøl.</div>'}
+    </div>`;
+}
+
 function propsTab(){
   return `<div class="panel"><div class="phead"><h2>Ognir</h2>
     <button class="ghost" data-act="newProp">+ Nýggj ogn</button></div>
     ${DATA.props.length? table(
       ['Ogn','Felag','Virði','Lán','Frívirði','Eginfígging',''],
       DATA.props.map(p=>[
-        esc(p.name), esc(coName(p.company_id)),
+        {h:`<a href="#" data-act="openProp" data-id="${p.id}" style="color:var(--gold);text-decoration:none;font-weight:600">${esc(p.name)}</a>`},
+        esc(coName(p.company_id)),
         {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
         {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'},
         {n:krS(p.total_capital)},
@@ -612,11 +697,18 @@ async function act(d){
       {label:'Keypsprísur',name:'purchase_price',type:'number',value:p.purchase_price||0},
       {label:'Virði í dag',name:'current_value',type:'number',value:p.current_value||0},
       {label:'Lán (restskuld)',name:'loan_balance',type:'number',value:p.loan_balance||0},
-      {label:'CF á mána',name:'monthly_cashflow',type:'number',value:p.monthly_cashflow||0},
+      {label:'Leiga á mána',name:'monthly_rent',type:'number',value:p.monthly_rent||0},
+      {label:'Útreiðslur á mána',name:'monthly_expenses',type:'number',value:p.monthly_expenses||0},
+      {label:'Umvæling',name:'renovation_cost',type:'number',value:p.renovation_cost||0},
+      {label:'Keypsdagur',name:'purchase_date',type:'date',value:p.purchase_date||''},
+      {label:'Viðmerking',name:'notes',type:'text',value:p.notes||''},
     ], async v => {
+      const rent=+v.monthly_rent||0, exp=+v.monthly_expenses||0;
       const row = {name:v.name, address:v.address, company_id:v.company_id||null,
         purchase_price:+v.purchase_price, current_value:+v.current_value,
-        loan_balance:+v.loan_balance, monthly_cashflow:+v.monthly_cashflow};
+        loan_balance:+v.loan_balance, monthly_rent:rent, monthly_expenses:exp,
+        monthly_cashflow:rent-exp, renovation_cost:+v.renovation_cost||0,
+        purchase_date:v.purchase_date||null, notes:v.notes||null};
       const r = A==='editProp'
         ? await sb.from('properties').update(row).eq('id',d.id)
         : await sb.from('properties').insert(row);
@@ -648,6 +740,8 @@ async function act(d){
   ], async v => (await sb.from('documents').insert(
       {property_id:v.property_id,title:v.title,url:v.url})).error?.message);
 
+  if(A==='openProp'){ OPEN=d.id; render(); return; }
+  if(A==='backProps'){ OPEN=null; render(); return; }
   if(A==='role'){
     await sb.from('profiles').update({role:d.r}).eq('id',d.id);
     await load(); render(); return;
