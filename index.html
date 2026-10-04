@@ -316,6 +316,7 @@ function myProps(){
 
 // ---------- Feløg: listi og smálutir ----------
 const ownerLabel = r => r.parent_company ? coName(r.parent_company)
+                     : r.owner_company ? coName(r.owner_company)
                      : r.user_id ? uName(r.user_id)
                      : (r.external_name || '—');
 
@@ -407,14 +408,32 @@ function compDetail(){
       ${table(['Felag','Partur'], ownsCo.map(o=>[esc(coName(o.company_id)), {n:(o.pct||0).toFixed(1)+'%'}]))}
     </div>`:''}
 
-    <div class="panel"><h3>Ognir</h3>
-      ${props.length? table(['Ogn','Virði','Lán','Frívirði'],
+    ${(()=>{
+      const mine = DATA.owners.filter(o=>o.owner_company===c.id);
+      if(!mine.length) return '';
+      return `<div class="panel"><h3>Partar í ognum — og hvat ${esc(c.name)} hevur lagt inn</h3>
+        ${table(['Ogn','Partur','Innlagt','Frívirði tilsamans','Mín partur','Reel vinningur'],
+          mine.map(o=>{
+            const pr=DATA.props.find(x=>x.id===o.property_id)||{};
+            const eq=(pr.current_value||0)-(pr.loan_balance||0);
+            const sur=eq-(pr.total_capital||0), pct=(o.pct||0)/100, g=sur*pct;
+            return [
+              {h:`<a href="#" data-act="gotoProp" data-id="${pr.id}" style="color:var(--gold);text-decoration:none">${esc(pr.name||'—')}</a>`},
+              {n:(o.pct||0).toFixed(1)+'%'}, {n:kr(o.capital)}, {n:kr(eq)},
+              {n:kr((o.capital||0)+g),c:'gold'}, {n:kr(g),c:g>=0?'green':'red'}];
+          }))}
+        <div class="soft" style="margin-top:12px;font-size:14px">
+          Innlagt verður fyrst goldið aftur. Bert tað sum er umframt verður býtt eftir eigarapartinum.</div>
+      </div>`;
+    })()}
+
+    ${props.length?`<div class="panel"><h3>Ognir skrásettar á ${esc(c.name)}</h3>
+      ${table(['Ogn','Virði','Lán','Frívirði'],
         props.map(p=>[
           {h:`<a href="#" data-act="gotoProp" data-id="${p.id}" style="color:var(--gold);text-decoration:none">${esc(p.name)}</a>`},
           {n:krS(p.current_value)}, {n:krS(p.loan_balance)},
-          {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'}]))
-        : '<div class="empty">Ongar ognir.</div>'}
-    </div>
+          {n:krS((p.current_value||0)-(p.loan_balance||0)),c:'sea'}]))}
+    </div>`:''}
 
     <div class="panel"><h3>Lán INN — ${esc(c.name)} skyldar</h3>
       ${owes.length? table(['Lánari','Upphædd','Renta','Dagur','Støða'],
@@ -444,7 +463,9 @@ function propDetail(){
   const totalCap = p.total_capital||0;
   const surplus = equity-totalCap;
   const line = (l,v,cls) => `<tr><td class="soft">${l}</td><td class="num ${cls||''}">${v}</td></tr>`;
-  const ownerName = o => o.user_id ? uName(o.user_id) : (o.external_name||'—');
+  const ownerName = o => o.user_id ? uName(o.user_id)
+                       : o.owner_company ? coName(o.owner_company)
+                       : (o.external_name||'—');
 
   return `<div class="row" style="margin-bottom:18px">
       <button class="ghost" data-act="backProps">← Allar ognir</button>
@@ -550,7 +571,7 @@ function ownersTab(){
         const p=DATA.props.find(x=>x.id===o.property_id)||{};
         const c=calc(p,o);
         return [esc(pName(o.property_id)),
-          esc(o.user_id ? uName(o.user_id) : (o.external_name||'—')),
+          esc(o.user_id ? uName(o.user_id) : o.owner_company ? coName(o.owner_company) : (o.external_name||'—')),
           {n:(o.pct||0).toFixed(1)+'%'}, {n:krS(o.capital)},
           {n:krS(c.share),c:'gold'}, {n:krS(c.gain),c:c.gain>=0?'green':'red'},
           {h:`<button class="danger" data-act="delOwner" data-id="${o.id}">Strika</button>`}];
