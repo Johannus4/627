@@ -1,22 +1,22 @@
 {
- "updated_at": "2026-10-09T14:16:36+00:00",
- "count": 137,
- "count_fo": 137,
+ "updated_at": "2026-10-10T13:26:32+00:00",
+ "count": 138,
+ "count_fo": 138,
  "count_dk": 0,
  "sources": {
   "bugv.fo": {
    "market": "fo",
-   "count": 125,
+   "count": 126,
    "notes": [
-    "/: HTTP 200, 517262 b",
-    "   -> from_html: 125 annonsur"
+    "/: HTTP 200, 520866 b",
+    "   -> from_html: 126 annonsur"
    ]
   },
   "bustad.fo": {
    "market": "fo",
    "count": 0,
    "notes": [
-    "/: HTTP 200, 436750 b",
+    "/: HTTP 200, 434008 b",
     "/ognir: HTTP 404, 63805 b",
     "/til-solu: HTTP 404, 63805 b",
     "/sok: HTTP 404, 63805 b"
@@ -50,7 +50,21 @@
  },
  "listings": [
   {
-   "title": "nýtt 0d Fylg kr . 5.950.000 Eystan heyg 17 Tórshavn Stødd 257 ㎡ Grundøki 344 ㎡ Kømur 5 Ár",
+   "title": "nýtt 0d Fylg kr . 900.000 Reiðgøta Tórshavn Stødd 80 ㎡ Grundøki 120 ㎡ Kømur 6 Ár 1983",
+   "place": "—",
+   "type": "—",
+   "price": 900000.0,
+   "area": null,
+   "rooms": null,
+   "url": "https://lista.fo/listings/reidgota-pigs",
+   "source": "bugv.fo",
+   "market": "fo",
+   "id": "58c76016f267e59f",
+   "first_seen": "2026-10-10",
+   "days_on_market": 0
+  },
+  {
+   "title": "nýtt 1d Fylg kr . 5.950.000 Eystan heyg 17 Tórshavn Stødd 257 ㎡ Grundøki 344 ㎡ Kømur 5 Ár",
    "place": "—",
    "type": "—",
    "price": 5950000.0,
@@ -61,10 +75,10 @@
    "market": "fo",
    "id": "f55af0b5e2108d47",
    "first_seen": "2026-10-09",
-   "days_on_market": 0
+   "days_on_market": 1
   },
   {
-   "title": "nýtt 0d Fylg kr . 4.295.000 Brúnagøta 7 Tórshavn Stødd 216 ㎡ Grundøki 505 ㎡ Kømur 6 Ár 198",
+   "title": "nýtt 1d Fylg kr . 4.295.000 Brúnagøta 7 Tórshavn Stødd 216 ㎡ Grundøki 505 ㎡ Kømur 6 Ár 198",
    "place": "—",
    "type": "—",
    "price": 4295000.0,
@@ -75,10 +89,10 @@
    "market": "fo",
    "id": "9ef2fb1807c96d8e",
    "first_seen": "2026-10-09",
-   "days_on_market": 0
+   "days_on_market": 1
   },
   {
-   "title": "1d Fylg kr . 1.495.000 Sornhúsvegur 9 Tvøroyri Stødd 122 ㎡ Grundøki 305 ㎡ Kømur 3 Ár 1920",
+   "title": "2d Fylg kr . 1.495.000 Sornhúsvegur 9 Tvøroyri Stødd 122 ㎡ Grundøki 305 ㎡ Kømur 3 Ár 1920",
    "place": "—",
    "type": "—",
    "price": 1495000.0,
@@ -89,10 +103,10 @@
    "market": "fo",
    "id": "41970acb8a7b63dc",
    "first_seen": "2026-10-08",
-   "days_on_market": 1
+   "days_on_market": 2
   },
   {
-   "title": "1d Fylg kr . 2.495.000 Vípuvegur 6 Tvøroyri Stødd 221 ㎡ Grundøki 1441 ㎡ Kømur 5 Ár 1966",
+   "title": "2d Fylg kr . 2.495.000 Vípuvegur 6 Tvøroyri Stødd 221 ㎡ Grundøki 1441 ㎡ Kømur 5 Ár 1966",
    "place": "—",
    "type": "—",
    "price": 2495000.0,
@@ -103,10 +117,10 @@
    "market": "fo",
    "id": "b97152be0c904f09",
    "first_seen": "2026-10-08",
-   "days_on_market": 1
+   "days_on_market": 2
   },
   {
-   "title": "nýtt 2d Fylg kr . 3.595.000 Leitisvegur 70d Saltangará Stødd 89 ㎡ Kømur 2 Ár 2026",
+   "title": "nýtt 3d Fylg kr . 3.595.000 Leitisvegur 70d Saltangará Stødd 89 ㎡ Kømur 2 Ár 2026",
    "place": "—",
    "type": "—",
    "price": 3595000.0,
@@ -117,10 +131,10 @@
    "market": "fo",
    "id": "6ea91f6f420997aa",
    "first_seen": "2026-10-08",
-   "days_on_market": 1
+   "days_on_market": 2
   },
   {
-   "title": "nýtt 2d Fylg kr . 4.995.000 Við myllutjørn 22 Hoyvík Stødd 110 ㎡ Grundøki 213 ㎡ Kømur 4 Ár",
+   "title": "nýtt 3d Fylg kr . 4.995.000 Við myllutjørn 22 Hoyvík Stødd 110 ㎡ Grundøki 213 ㎡ Kømur 4 Ár",
    "place": "—",
    "type": "—",
    "price": 4995000.0,
@@ -131,10 +145,10 @@
    "market": "fo",
    "id": "46382ef10aa0537d",
    "first_seen": "2026-10-08",
-   "days_on_market": 1
+   "days_on_market": 2
   },
   {
-   "title": "2d Fylg kr . 5.995.000 Purkugerði 4 Tórshavn Stødd 259 ㎡ Grundøki 500 ㎡ Kømur 5",
+   "title": "3d Fylg kr . 5.995.000 Purkugerði 4 Tórshavn Stødd 259 ㎡ Grundøki 500 ㎡ Kømur 5",
    "place": "—",
    "type": "—",
    "price": 5995000.0,
@@ -145,10 +159,10 @@
    "market": "fo",
    "id": "20351313c3e51432",
    "first_seen": "2026-10-07",
-   "days_on_market": 2
+   "days_on_market": 3
   },
   {
-   "title": "nýtt 4d Fylg kr . 6.750.000 Heiðastubbi 8 Tórshavn Stødd 262 ㎡ Grundøki 504 ㎡ Kømur 6 Ár 1",
+   "title": "nýtt 5d Fylg kr . 6.750.000 Heiðastubbi 8 Tórshavn Stødd 262 ㎡ Grundøki 504 ㎡ Kømur 6 Ár 1",
    "place": "—",
    "type": "—",
    "price": 6750000.0,
@@ -159,10 +173,10 @@
    "market": "fo",
    "id": "e545fa09c8199a34",
    "first_seen": "2026-10-06",
-   "days_on_market": 3
+   "days_on_market": 4
   },
   {
-   "title": "nýtt 4d Fylg kr . 2.500.000 Matr. 10ai Hvalvík Stødd 98 ㎡ Grundøki 49 ㎡ Kømur 3 Ár 2020",
+   "title": "nýtt 5d Fylg kr . 2.500.000 Matr. 10ai Hvalvík Stødd 98 ㎡ Grundøki 49 ㎡ Kømur 3 Ár 2020",
    "place": "—",
    "type": "—",
    "price": 2500000.0,
@@ -173,10 +187,10 @@
    "market": "fo",
    "id": "21f7321310f5aa65",
    "first_seen": "2026-10-05",
-   "days_on_market": 4
+   "days_on_market": 5
   },
   {
-   "title": "4d Fylg kr . 4.500.000 Varðagøta 73 Tórshavn Stødd 285 ㎡ Grundøki 437 ㎡ Kømur 5 Ár 1957",
+   "title": "5d Fylg kr . 4.500.000 Varðagøta 73 Tórshavn Stødd 285 ㎡ Grundøki 437 ㎡ Kømur 5 Ár 1957",
    "place": "—",
    "type": "—",
    "price": 4500000.0,
@@ -187,10 +201,10 @@
    "market": "fo",
    "id": "ecf8b0dc5283b789",
    "first_seen": "2026-10-05",
-   "days_on_market": 4
+   "days_on_market": 5
   },
   {
-   "title": "7d Fylg kr . 1.850.000 Tróndargøta 8 Norðragøta Stødd 156 ㎡ Grundøki 616 ㎡ Kømur 2 Ár 1905",
+   "title": "8d Fylg kr . 1.850.000 Tróndargøta 8 Norðragøta Stødd 156 ㎡ Grundøki 616 ㎡ Kømur 2 Ár 1905",
    "place": "—",
    "type": "—",
    "price": 1850000.0,
@@ -201,10 +215,10 @@
    "market": "fo",
    "id": "f2c9b7786bf00a76",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "nýtt 7d Fylg kr . 5.895.000 Millum gilja 133 Hoyvík Stødd 212 ㎡ Grundøki 500 ㎡ Kømur 4 Ár",
+   "title": "nýtt 8d Fylg kr . 5.895.000 Millum gilja 133 Hoyvík Stødd 212 ㎡ Grundøki 500 ㎡ Kømur 4 Ár",
    "place": "—",
    "type": "—",
    "price": 5895000.0,
@@ -215,10 +229,10 @@
    "market": "fo",
    "id": "ff95dfd46e234aba",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "7d Fylg kr . 4.695.000 Ingibjargargøta 4e, 1.5 Hoyvík Stødd 96 ㎡ Kømur 3 Ár 2021",
+   "title": "8d Fylg kr . 4.695.000 Ingibjargargøta 4e, 1.5 Hoyvík Stødd 96 ㎡ Kømur 3 Ár 2021",
    "place": "—",
    "type": "—",
    "price": 4695000.0,
@@ -229,10 +243,10 @@
    "market": "fo",
    "id": "e420eb237e8211e7",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "7d Fylg kr . 3.595.000 Leitisvegur 21 Glyvrar Stødd 258 ㎡ Grundøki 909 ㎡ Kømur 5 Ár 1972",
+   "title": "8d Fylg kr . 3.595.000 Leitisvegur 21 Glyvrar Stødd 258 ㎡ Grundøki 909 ㎡ Kømur 5 Ár 1972",
    "place": "—",
    "type": "—",
    "price": 3595000.0,
@@ -243,10 +257,10 @@
    "market": "fo",
    "id": "af35ddfed9d40d7a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "boð 7d Fylg kr . 2.995.000 Boð : 3.100.000 Á eystaru hellu 24 Kvívík Stødd 211 ㎡ Grundøki",
+   "title": "boð 8d Fylg kr . 2.995.000 Boð : 3.100.000 Á eystaru hellu 24 Kvívík Stødd 211 ㎡ Grundøki",
    "place": "—",
    "type": "—",
    "price": 2995000.0,
@@ -257,10 +271,10 @@
    "market": "fo",
    "id": "ae45dc43432de3da",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "8d Fylg kr . 1.995.000 Skúlavegur 12, lon 2, íbúð 0.1 Strendur Stødd 57 ㎡ Grundøki 57 ㎡ Kø",
+   "title": "9d Fylg kr . 1.995.000 Skúlavegur 12, lon 2, íbúð 0.1 Strendur Stødd 57 ㎡ Grundøki 57 ㎡ Kø",
    "place": "—",
    "type": "—",
    "price": 1995000.0,
@@ -271,10 +285,10 @@
    "market": "fo",
    "id": "9706154a5daef6a9",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "nýtt 8d Fylg kr . 2.850.000 Heimasandsvegur 80 Sandur Stødd 256 ㎡ Grundøki 489 ㎡ Kømur 4 Á",
+   "title": "9d Fylg kr . 2.850.000 Heimasandsvegur 80 Sandur Stødd 256 ㎡ Grundøki 489 ㎡ Kømur 4 Ár 195",
    "place": "—",
    "type": "—",
    "price": 2850000.0,
@@ -285,10 +299,10 @@
    "market": "fo",
    "id": "b4e4975f7db9bc0b",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "nýtt 8d Fylg kr . 3.495.000 Skákið 2 Rituvík Stødd 260 ㎡ Grundøki 622 ㎡ Kømur 3 Ár 1984",
+   "title": "9d Fylg kr . 3.495.000 Skákið 2 Rituvík Stødd 260 ㎡ Grundøki 622 ㎡ Kømur 3 Ár 1984",
    "place": "—",
    "type": "—",
    "price": 3495000.0,
@@ -299,10 +313,10 @@
    "market": "fo",
    "id": "9caf262c5cd0caa0",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "boð 9d Fylg kr . 4.495.000 Boð : 4.600.000 J. c. svabos gøta 19.1 Tórshavn Stødd 139 ㎡ Gru",
+   "title": "boð 10d Fylg kr . 4.495.000 Boð : 4.600.000 J. c. svabos gøta 19.1 Tórshavn Stødd 139 ㎡ Gr",
    "place": "—",
    "type": "—",
    "price": 4495000.0,
@@ -313,10 +327,10 @@
    "market": "fo",
    "id": "dc0d9de563656546",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "9d Fylg kr . 2.000.000 Vágsvegur 113 Vágur Stødd 319 ㎡ Grundøki 858 ㎡ Kømur 8 Ár 1980",
+   "title": "10d Fylg kr . 2.000.000 Vágsvegur 113 Vágur Stødd 319 ㎡ Grundøki 858 ㎡ Kømur 8 Ár 1980",
    "place": "—",
    "type": "—",
    "price": 2000000.0,
@@ -327,10 +341,10 @@
    "market": "fo",
    "id": "49c51bf3e427ef94",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "10d Fylg kr . 2.150.000 Sundsvegur 18 Hvannasund Stødd 165 ㎡ Grundøki 484 ㎡ Kømur 2 Ár 191",
+   "title": "11d Fylg kr . 2.150.000 Sundsvegur 18 Hvannasund Stødd 165 ㎡ Grundøki 484 ㎡ Kømur 2 Ár 191",
    "place": "—",
    "type": "—",
    "price": 2150000.0,
@@ -341,10 +355,10 @@
    "market": "fo",
    "id": "ddeb113f05a97b37",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "11d Fylg kr . 1.995.000 Skálavegur 337 Skála Stødd 169 ㎡ Grundøki 775 ㎡ Kømur 5 Ár 1955",
+   "title": "12d Fylg kr . 1.995.000 Skálavegur 337 Skála Stødd 169 ㎡ Grundøki 775 ㎡ Kømur 5 Ár 1955",
    "place": "—",
    "type": "—",
    "price": 1995000.0,
@@ -355,10 +369,10 @@
    "market": "fo",
    "id": "32e6c90c7030dd1e",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "boð 11d Fylg kr . 1.395.000 Boð : 2.000.000 Mylnugøta 14 Klaksvík Stødd 176 ㎡ Grundøki 454",
+   "title": "boð 12d Fylg kr . 1.395.000 Boð : 2.000.000 Mylnugøta 14 Klaksvík Stødd 176 ㎡ Grundøki 454",
    "place": "—",
    "type": "—",
    "price": 1395000.0,
@@ -369,10 +383,10 @@
    "market": "fo",
    "id": "2beb6225fb46a410",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "12d Fylg kr . 2.495.000 Stoksoyrarvegur 81 Klaksvík Stødd 204 ㎡ Grundøki 363 ㎡ Kømur 3 Ár",
+   "title": "13d Fylg kr . 2.495.000 Stoksoyrarvegur 81 Klaksvík Stødd 204 ㎡ Grundøki 363 ㎡ Kømur 3 Ár",
    "place": "—",
    "type": "—",
    "price": 2495000.0,
@@ -383,10 +397,10 @@
    "market": "fo",
    "id": "d0bc9d76a6a48fd1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "14d Fylg kr . 5.000.000 Matr.nr. 402c og 402d kvívík Grundøki 40050 ㎡",
+   "title": "15d Fylg kr . 5.000.000 Matr.nr. 402c og 402d kvívík Grundøki 40050 ㎡",
    "place": "—",
    "type": "—",
    "price": 5000000.0,
@@ -397,10 +411,10 @@
    "market": "fo",
    "id": "3053a1453b0714da",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "boð 14d Fylg kr . 3.295.000 Boð : 3.300.000 Ovari vegur 26a b & c Vestmanna Stødd 399 ㎡ Gr",
+   "title": "boð 15d Fylg kr . 3.295.000 Boð : 3.300.000 Ovari vegur 26a b & c Vestmanna Stødd 399 ㎡ Gr",
    "place": "—",
    "type": "—",
    "price": 3295000.0,
@@ -411,10 +425,10 @@
    "market": "fo",
    "id": "30ebd697f1f25917",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "14d Fylg kr . 4.075.000 Glyvravegur 48 Glyvrar Stødd 297 ㎡ Grundøki 594 ㎡ Kømur 4 Ár 1990",
+   "title": "15d Fylg kr . 4.075.000 Glyvravegur 48 Glyvrar Stødd 297 ㎡ Grundøki 594 ㎡ Kømur 4 Ár 1990",
    "place": "—",
    "type": "—",
    "price": 4075000.0,
@@ -425,10 +439,10 @@
    "market": "fo",
    "id": "7de05f4976d2aa0c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "15d Fylg kr . 3.900.000 Undir kongavarða 23 1hm Argir Stødd 83 ㎡ Ár 2009",
+   "title": "16d Fylg kr . 3.900.000 Undir kongavarða 23 1hm Argir Stødd 83 ㎡ Ár 2009",
    "place": "—",
    "type": "—",
    "price": 3900000.0,
@@ -439,10 +453,10 @@
    "market": "fo",
    "id": "0b9b3cba80715dc8",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "15d Fylg kr . 1.950.000 Krossgøta 21 Kaldbak Stødd 201 ㎡ Grundøki 399 ㎡ Kømur 4 Ár 1940",
+   "title": "16d Fylg kr . 1.950.000 Krossgøta 21 Kaldbak Stødd 201 ㎡ Grundøki 399 ㎡ Kømur 4 Ár 1940",
    "place": "—",
    "type": "—",
    "price": 1950000.0,
@@ -453,10 +467,10 @@
    "market": "fo",
    "id": "e511d82ede7ff26b",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "17d Fylg kr . 1.900.000 Í geilini 6 Sørvágur Stødd 177 ㎡ Grundøki 728 ㎡ Kømur 3 Ár 1928",
+   "title": "18d Fylg kr . 1.900.000 Í geilini 6 Sørvágur Stødd 177 ㎡ Grundøki 728 ㎡ Kømur 3 Ár 1928",
    "place": "—",
    "type": "—",
    "price": 1900000.0,
@@ -467,10 +481,10 @@
    "market": "fo",
    "id": "f46dfc923fa15141",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "18d Fylg kr . 4.200.000 Undir kongavarða 31 0 Argir Stødd 127 ㎡ Kømur 2 Ár 2015",
+   "title": "19d Fylg kr . 4.200.000 Undir kongavarða 31 0 Argir Stødd 127 ㎡ Kømur 2 Ár 2015",
    "place": "—",
    "type": "—",
    "price": 4200000.0,
@@ -481,10 +495,10 @@
    "market": "fo",
    "id": "a457a2fbc64dc8c0",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "boð 18d Fylg kr . 4.395.000 Boð : 4.500.000 Niðaragøta 70 Hoyvík Stødd 159 ㎡ Grundøki 183",
+   "title": "boð 19d Fylg kr . 4.395.000 Boð : 4.500.000 Niðaragøta 70 Hoyvík Stødd 159 ㎡ Grundøki 183",
    "place": "—",
    "type": "—",
    "price": 4395000.0,
@@ -495,10 +509,10 @@
    "market": "fo",
    "id": "0b482a7f9dbe42d8",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "23d Fylg kr . 100.000 Boð : 70.000 Matr.nr. 543 strendur Strendur Stødd 73 ㎡ Grundøki 63 ㎡",
+   "title": "24d Fylg kr . 100.000 Boð : 70.000 Matr.nr. 543 strendur Strendur Stødd 73 ㎡ Grundøki 63 ㎡",
    "place": "—",
    "type": "—",
    "price": 100000.0,
@@ -509,12 +523,12 @@
    "market": "fo",
    "id": "72a603c101f4027f",
    "first_seen": "2026-10-04",
-   "days_on_market": 5,
+   "days_on_market": 6,
    "price_change": -50000.0,
    "price_change_pct": -33.3
   },
   {
-   "title": "23d Fylg kr . 4.057.500 Við gamla velbastaðveg (stykki 9) Tórshavn Grundøki 1082 ㎡",
+   "title": "24d Fylg kr . 4.057.500 Við gamla velbastaðveg (stykki 9) Tórshavn Grundøki 1082 ㎡",
    "place": "—",
    "type": "—",
    "price": 4057500.0,
@@ -525,10 +539,10 @@
    "market": "fo",
    "id": "bcb7e96de5c155c6",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "28d Fylg kr . 5.000.000 Brekkugerði 20 Hósvík Stødd 211 ㎡ Grundøki 466 ㎡ Kømur 5 Ár 2010",
+   "title": "29d Fylg kr . 5.000.000 Brekkugerði 20 Hósvík Stødd 211 ㎡ Grundøki 466 ㎡ Kømur 5 Ár 2010",
    "place": "—",
    "type": "—",
    "price": 5000000.0,
@@ -539,10 +553,10 @@
    "market": "fo",
    "id": "50f7eb8c59ec3425",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "35d Fylg kr . 5.395.000 Dýrindalsgøta 20 Hoyvík Stødd 123 ㎡ Grundøki 167 ㎡ Kømur 3 Ár 2012",
+   "title": "36d Fylg kr . 5.395.000 Dýrindalsgøta 20 Hoyvík Stødd 123 ㎡ Grundøki 167 ㎡ Kømur 3 Ár 2012",
    "place": "—",
    "type": "—",
    "price": 5395000.0,
@@ -553,10 +567,10 @@
    "market": "fo",
    "id": "a28080fc22e40d79",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "36d Fylg kr . 2.600.000 Torvheyggjur 18 Froðba Stødd 196 ㎡ Grundøki 2100 ㎡ Kømur 5 Ár 1935",
+   "title": "37d Fylg kr . 2.600.000 Torvheyggjur 18 Froðba Stødd 196 ㎡ Grundøki 2100 ㎡ Kømur 5 Ár 1935",
    "place": "—",
    "type": "—",
    "price": 2600000.0,
@@ -567,10 +581,10 @@
    "market": "fo",
    "id": "ab25d76fdb39984f",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "42d Fylg kr . 3.995.000 Velbastaðvegur 35 Tórshavn Stødd 129 ㎡ Grundøki 347 ㎡ Kømur 4 Ár 1",
+   "title": "43d Fylg kr . 3.995.000 Velbastaðvegur 35 Tórshavn Stødd 129 ㎡ Grundøki 347 ㎡ Kømur 4 Ár 1",
    "place": "—",
    "type": "—",
    "price": 3995000.0,
@@ -581,10 +595,10 @@
    "market": "fo",
    "id": "c2ff1cb329ae4e45",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "45d Fylg kr . 2.725.000 Glyvursvegur 33 og matr. 137 Innan Stødd 212 ㎡ Grundøki 8240 ㎡ Køm",
+   "title": "46d Fylg kr . 2.725.000 Glyvursvegur 33 og matr. 137 Innan Stødd 212 ㎡ Grundøki 8240 ㎡ Køm",
    "place": "—",
    "type": "—",
    "price": 2725000.0,
@@ -595,10 +609,10 @@
    "market": "fo",
    "id": "2486d170252879bc",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "49d Fylg kr . 4.995.000 Maritugøta 45 Hoyvík Stødd 178 ㎡ Grundøki 144 ㎡ Kømur 3 Ár 2005",
+   "title": "50d Fylg kr . 4.995.000 Maritugøta 45 Hoyvík Stødd 178 ㎡ Grundøki 144 ㎡ Kømur 3 Ár 2005",
    "place": "—",
    "type": "—",
    "price": 4995000.0,
@@ -609,10 +623,10 @@
    "market": "fo",
    "id": "5f61fc080f4fb6ec",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "50d Fylg kr . 1.100.000 Boð : 875.000 Matr.nr. 49q kaldbak Kaldbak Grundøki 432 ㎡",
+   "title": "51d Fylg kr . 1.100.000 Boð : 875.000 Matr.nr. 49q kaldbak Kaldbak Grundøki 432 ㎡",
    "place": "—",
    "type": "—",
    "price": 1100000.0,
@@ -623,10 +637,10 @@
    "market": "fo",
    "id": "a17aef162c5cd0e5",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "51d Fylg kr . 750.000 Heygavegur 41 Porkeri Stødd 110 ㎡ Grundøki 198 ㎡ Kømur 3",
+   "title": "52d Fylg kr . 750.000 Heygavegur 41 Porkeri Stødd 110 ㎡ Grundøki 198 ㎡ Kømur 3",
    "place": "—",
    "type": "—",
    "price": 750000.0,
@@ -637,10 +651,10 @@
    "market": "fo",
    "id": "640920b0aaba9a98",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "51d Fylg kr . 975.000 Í støðni 5, nes Hvalba Stødd 146 ㎡ Grundøki 659 ㎡ Kømur 4 Ár 1952",
+   "title": "52d Fylg kr . 975.000 Í støðni 5, nes Hvalba Stødd 146 ㎡ Grundøki 659 ㎡ Kømur 4 Ár 1952",
    "place": "—",
    "type": "—",
    "price": 975000.0,
@@ -651,10 +665,10 @@
    "market": "fo",
    "id": "c26ac428d0d24779",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "52d Fylg kr . 3.295.000 Klaksvíksvegur 43 Klaksvík Grundøki 236 ㎡ Kømur 2",
+   "title": "53d Fylg kr . 3.295.000 Klaksvíksvegur 43 Klaksvík Grundøki 236 ㎡ Kømur 2",
    "place": "—",
    "type": "—",
    "price": 3295000.0,
@@ -665,10 +679,10 @@
    "market": "fo",
    "id": "a42bd0ddd0428189",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "53d Fylg kr . 2.500.000 Skálavegur 198 Skála Stødd 219 ㎡ Grundøki 758 ㎡ Kømur 4",
+   "title": "54d Fylg kr . 2.500.000 Skálavegur 198 Skála Stødd 219 ㎡ Grundøki 758 ㎡ Kømur 4",
    "place": "—",
    "type": "—",
    "price": 2500000.0,
@@ -679,10 +693,10 @@
    "market": "fo",
    "id": "a90597061c19c89a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "57d Fylg kr . 495.000 Neyst – matr. nr. 83b Kollafjørður Stødd 76 ㎡ Grundøki 43 ㎡ Ár 1975",
+   "title": "58d Fylg kr . 495.000 Neyst – matr. nr. 83b Kollafjørður Stødd 76 ㎡ Grundøki 43 ㎡ Ár 1975",
    "place": "—",
    "type": "—",
    "price": 495000.0,
@@ -693,10 +707,10 @@
    "market": "fo",
    "id": "933798d9cac3858d",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "63d Fylg kr . 2.850.000 Boð : 2.500.000 Selheygsgøta 18 Klaksvík Stødd 173 ㎡ Grundøki 223",
+   "title": "64d Fylg kr . 2.850.000 Boð : 2.500.000 Selheygsgøta 18 Klaksvík Stødd 173 ㎡ Grundøki 223",
    "place": "—",
    "type": "—",
    "price": 2850000.0,
@@ -707,10 +721,10 @@
    "market": "fo",
    "id": "2847b3a646b83e45",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "64d Fylg kr . 9.000.000 Skotarók 14 Tórshavn Stødd 338 ㎡ Grundøki 475 ㎡ Kømur 3 Ár 1996",
+   "title": "65d Fylg kr . 9.000.000 Skotarók 14 Tórshavn Stødd 338 ㎡ Grundøki 475 ㎡ Kømur 3 Ár 1996",
    "place": "—",
    "type": "—",
    "price": 9000000.0,
@@ -721,10 +735,10 @@
    "market": "fo",
    "id": "8cc8744da46c669d",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "64d Fylg kr . 1.195.000 Kongabrekkan 20 Tvøroyri Stødd 118 ㎡ Grundøki 564 ㎡ Kømur 3 Ár 194",
+   "title": "65d Fylg kr . 1.195.000 Kongabrekkan 20 Tvøroyri Stødd 118 ㎡ Grundøki 564 ㎡ Kømur 3 Ár 194",
    "place": "—",
    "type": "—",
    "price": 1195000.0,
@@ -735,10 +749,10 @@
    "market": "fo",
    "id": "d54a801ab91ebca2",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "65d Fylg kr . 2.995.000 Skúlavegur 12, lon 1, íbúð 0.2 Strendur Stødd 110 ㎡ Kømur 3 Ár 202",
+   "title": "66d Fylg kr . 2.995.000 Skúlavegur 12, lon 1, íbúð 0.2 Strendur Stødd 110 ㎡ Kømur 3 Ár 202",
    "place": "—",
    "type": "—",
    "price": 2995000.0,
@@ -749,10 +763,10 @@
    "market": "fo",
    "id": "37f219e16e98bcd1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "75d Fylg kr . 975.000 Í leivsgarði 6 Hov Stødd 127 ㎡ Grundøki 1125 ㎡ Kømur 2 Ár 1937",
+   "title": "76d Fylg kr . 975.000 Í leivsgarði 6 Hov Stødd 127 ㎡ Grundøki 1125 ㎡ Kømur 2 Ár 1937",
    "place": "—",
    "type": "—",
    "price": 975000.0,
@@ -763,10 +777,10 @@
    "market": "fo",
    "id": "9659a4b6171560e1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "75d Fylg kr . 2.475.000 Hvammavegur 20 Trongisvágur Stødd 200 ㎡ Grundøki 1733 ㎡ Kømur 4",
+   "title": "76d Fylg kr . 2.475.000 Hvammavegur 20 Trongisvágur Stødd 200 ㎡ Grundøki 1733 ㎡ Kømur 4",
    "place": "—",
    "type": "—",
    "price": 2475000.0,
@@ -777,10 +791,10 @@
    "market": "fo",
    "id": "9a9c67330776e10c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "77d Fylg kr . 2.600.000 Skálavegur 281 Skála Stødd 178 ㎡ Grundøki 865 ㎡ Kømur 2 Ár 1990",
+   "title": "78d Fylg kr . 2.600.000 Skálavegur 281 Skála Stødd 178 ㎡ Grundøki 865 ㎡ Kømur 2 Ár 1990",
    "place": "—",
    "type": "—",
    "price": 2600000.0,
@@ -791,10 +805,10 @@
    "market": "fo",
    "id": "849716a3de30802f",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "78d Fylg kr . 1.995.000 Deildarvegur 7a Mikladalur Stødd 80 ㎡ Grundøki 315 ㎡ Ár 2026",
+   "title": "79d Fylg kr . 1.995.000 Deildarvegur 7a Mikladalur Stødd 80 ㎡ Grundøki 315 ㎡ Ár 2026",
    "place": "—",
    "type": "—",
    "price": 1995000.0,
@@ -805,10 +819,10 @@
    "market": "fo",
    "id": "aaac81805ca425b0",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "84d Fylg kr . 165.000 Matr. nr. 723 Tvøroyri Grundøki 3107 ㎡",
+   "title": "85d Fylg kr . 165.000 Matr. nr. 723 Tvøroyri Grundøki 3107 ㎡",
    "place": "—",
    "type": "—",
    "price": 165000.0,
@@ -819,10 +833,10 @@
    "market": "fo",
    "id": "81834c9060db33f1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "85d Fylg kr . 5.500.000 Inni á støð 5 – jatnavegur 30 Miðvágur Stødd 280 ㎡ Grundøki 224 ㎡",
+   "title": "86d Fylg kr . 5.500.000 Inni á støð 5 – jatnavegur 30 Miðvágur Stødd 280 ㎡ Grundøki 224 ㎡",
    "place": "—",
    "type": "—",
    "price": 5500000.0,
@@ -833,10 +847,10 @@
    "market": "fo",
    "id": "8039949ed4c24230",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "85d Fylg kr . 1.750.000 Skraddaragøta 6 Sandavágur Stødd 155 ㎡ Grundøki 460 ㎡ Kømur 3 Ár 1",
+   "title": "86d Fylg kr . 1.750.000 Skraddaragøta 6 Sandavágur Stødd 155 ㎡ Grundøki 460 ㎡ Kømur 3 Ár 1",
    "place": "—",
    "type": "—",
    "price": 1750000.0,
@@ -847,12 +861,12 @@
    "market": "fo",
    "id": "81ce25ef53bb7c57",
    "first_seen": "2026-10-04",
-   "days_on_market": 5,
+   "days_on_market": 6,
    "price_change": -150000.0,
    "price_change_pct": -7.9
   },
   {
-   "title": "86d Fylg kr . 9.895.000 Undir kerjum 2 Tórshavn Stødd 214 ㎡ Grundøki 1950 ㎡ Kømur 2 Ár 196",
+   "title": "87d Fylg kr . 9.895.000 Undir kerjum 2 Tórshavn Stødd 214 ㎡ Grundøki 1950 ㎡ Kømur 2 Ár 196",
    "place": "—",
    "type": "—",
    "price": 9895000.0,
@@ -863,10 +877,10 @@
    "market": "fo",
    "id": "0816b10e3d36405a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "88d Fylg kr . 7.995.000 Javnagøta 11 Tórshavn Stødd 214 ㎡ Grundøki 500 ㎡ Kømur 3 Ár 2017",
+   "title": "89d Fylg kr . 7.995.000 Javnagøta 11 Tórshavn Stødd 214 ㎡ Grundøki 500 ㎡ Kømur 3 Ár 2017",
    "place": "—",
    "type": "—",
    "price": 7995000.0,
@@ -877,10 +891,10 @@
    "market": "fo",
    "id": "2190ce64a2b73dd2",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "89d Fylg kr . 1.695.000 Á hólmanum 3 Miðvágur Grundøki 289 ㎡ Kømur 4",
+   "title": "90d Fylg kr . 1.695.000 Á hólmanum 3 Miðvágur Grundøki 289 ㎡ Kømur 4",
    "place": "—",
    "type": "—",
    "price": 1695000.0,
@@ -891,10 +905,10 @@
    "market": "fo",
    "id": "70d6872f13fec0d1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "89d Fylg kr . 6.900.000 Meinhartstrøð 6 Tórshavn Stødd 217 ㎡ Grundøki 500 ㎡ Kømur 3 Ár 201",
+   "title": "90d Fylg kr . 6.900.000 Meinhartstrøð 6 Tórshavn Stødd 217 ㎡ Grundøki 500 ㎡ Kømur 3 Ár 201",
    "place": "—",
    "type": "—",
    "price": 6900000.0,
@@ -905,10 +919,10 @@
    "market": "fo",
    "id": "1a56f54f86a81ca3",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "91d Fylg kr . 249.975 Matr.nr. 70r oyri Oyrarbakki Grundøki 505 ㎡",
+   "title": "92d Fylg kr . 249.975 Matr.nr. 70r oyri Oyrarbakki Grundøki 505 ㎡",
    "place": "—",
    "type": "—",
    "price": 249975.0,
@@ -919,10 +933,10 @@
    "market": "fo",
    "id": "031c3bb7ce831ad4",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "91d Fylg kr . 247.500 Matr.nr. 70ab oyri Oyrarbakki Grundøki 500 ㎡",
+   "title": "92d Fylg kr . 247.500 Matr.nr. 70ab oyri Oyrarbakki Grundøki 500 ㎡",
    "place": "—",
    "type": "—",
    "price": 247500.0,
@@ -933,10 +947,10 @@
    "market": "fo",
    "id": "e8b3683f20bc5d3e",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "91d Fylg kr . 247.995 Matr.nr. 70q oyri Oyrarbakki Grundøki 501 ㎡",
+   "title": "92d Fylg kr . 247.995 Matr.nr. 70q oyri Oyrarbakki Grundøki 501 ㎡",
    "place": "—",
    "type": "—",
    "price": 247995.0,
@@ -947,10 +961,10 @@
    "market": "fo",
    "id": "82d79156d9dd3635",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "92d Fylg kr . 850.000 Boð : 450.000 Bakkavegur 9 Sørvágur Stødd 444 ㎡ Grundøki 676 ㎡ Ár 19",
+   "title": "93d Fylg kr . 850.000 Boð : 450.000 Bakkavegur 9 Sørvágur Stødd 444 ㎡ Grundøki 676 ㎡ Ár 19",
    "place": "—",
    "type": "—",
    "price": 850000.0,
@@ -961,10 +975,10 @@
    "market": "fo",
    "id": "d44e688608ad56db",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "101d Fylg kr . 250.000 Matr.nr. 515 vágur Vágur Grundøki 9376 ㎡",
+   "title": "102d Fylg kr . 250.000 Matr.nr. 515 vágur Vágur Grundøki 9376 ㎡",
    "place": "—",
    "type": "—",
    "price": 250000.0,
@@ -975,10 +989,10 @@
    "market": "fo",
    "id": "5193708cd3e03f93",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "106d Fylg kr . 3.800.000 Heimasandsvegur 117 Sandur Stødd 267 ㎡ Grundøki 618 ㎡ Kømur 9 Ár",
+   "title": "107d Fylg kr . 3.800.000 Heimasandsvegur 117 Sandur Stødd 267 ㎡ Grundøki 618 ㎡ Kømur 9 Ár",
    "place": "—",
    "type": "—",
    "price": 3800000.0,
@@ -989,10 +1003,10 @@
    "market": "fo",
    "id": "f38db72bdc194103",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "107d Fylg kr . 1.645.000 Í syðrutoftum 46 Trongisvágur Stødd 109 ㎡ Grundøki 205 ㎡ Kømur 3",
+   "title": "108d Fylg kr . 1.645.000 Í syðrutoftum 46 Trongisvágur Stødd 109 ㎡ Grundøki 205 ㎡ Kømur 3",
    "place": "—",
    "type": "—",
    "price": 1645000.0,
@@ -1003,10 +1017,10 @@
    "market": "fo",
    "id": "c86c273fec47cb5a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "112d Fylg kr . 3.995.000 Millum garðarnar 6 Kunoy Stødd 100 ㎡ Grundøki 583 ㎡ Kømur 2 Ár 20",
+   "title": "113d Fylg kr . 3.995.000 Millum garðarnar 6 Kunoy Stødd 100 ㎡ Grundøki 583 ㎡ Kømur 2 Ár 20",
    "place": "—",
    "type": "—",
    "price": 3995000.0,
@@ -1017,10 +1031,10 @@
    "market": "fo",
    "id": "580cbe1b8bb16696",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "113d Fylg kr . 6.000.000 Leynarvegur 24 Leynar Stødd 155 ㎡ Grundøki 34600 ㎡ Ár 1930",
+   "title": "114d Fylg kr . 6.000.000 Leynarvegur 24 Leynar Stødd 155 ㎡ Grundøki 34600 ㎡ Ár 1930",
    "place": "—",
    "type": "—",
    "price": 6000000.0,
@@ -1031,10 +1045,10 @@
    "market": "fo",
    "id": "a164e14274315322",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "115d Fylg kr . 900.000 Matr.nr. 565a & matr.nr. 565f vágur Vágur Grundøki 13742 ㎡",
+   "title": "116d Fylg kr . 900.000 Matr.nr. 565a & matr.nr. 565f vágur Vágur Grundøki 13742 ㎡",
    "place": "—",
    "type": "—",
    "price": 900000.0,
@@ -1045,10 +1059,10 @@
    "market": "fo",
    "id": "8349d6e4712dbc7d",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "120d Fylg kr . 695.000 Norðuri á heyggi 2a Velbastaður Grundøki 568 ㎡",
+   "title": "121d Fylg kr . 695.000 Norðuri á heyggi 2a Velbastaður Grundøki 568 ㎡",
    "place": "—",
    "type": "—",
    "price": 695000.0,
@@ -1059,10 +1073,10 @@
    "market": "fo",
    "id": "2ea7aaf53bb393cc",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "123d Fylg kr . 995.000 Bøgøta 26 Sumba Stødd 169 ㎡ Grundøki 607 ㎡ Kømur 4 Ár 1960",
+   "title": "124d Fylg kr . 995.000 Bøgøta 26 Sumba Stødd 169 ㎡ Grundøki 607 ㎡ Kømur 4 Ár 1960",
    "place": "—",
    "type": "—",
    "price": 995000.0,
@@ -1073,12 +1087,12 @@
    "market": "fo",
    "id": "ce6f47e2518a9627",
    "first_seen": "2026-10-04",
-   "days_on_market": 5,
+   "days_on_market": 6,
    "price_change": -205000.0,
    "price_change_pct": -17.1
   },
   {
-   "title": "123d Fylg kr . 248.000 Í heygunum 138 Trongisvágur Grundøki 750 ㎡",
+   "title": "124d Fylg kr . 248.000 Í heygunum 138 Trongisvágur Grundøki 750 ㎡",
    "place": "—",
    "type": "—",
    "price": 248000.0,
@@ -1089,10 +1103,10 @@
    "market": "fo",
    "id": "c479a326d4068fb1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "129d Fylg kr . 2.350.000 Boð : 2.000.000 Gerðisvegur 4 Leirvík Stødd 92 ㎡ Grundøki 630 ㎡ K",
+   "title": "130d Fylg kr . 2.350.000 Boð : 2.000.000 Gerðisvegur 4 Leirvík Stødd 92 ㎡ Grundøki 630 ㎡ K",
    "place": "—",
    "type": "—",
    "price": 2350000.0,
@@ -1103,10 +1117,10 @@
    "market": "fo",
    "id": "6f30e61b6d572fd6",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "130d Fylg kr . 895.000 Víkavegur 5 Haldórsvík Stødd 113 ㎡ Grundøki 309 ㎡ Kømur 4 Ár 1983",
+   "title": "131d Fylg kr . 895.000 Víkavegur 5 Haldórsvík Stødd 113 ㎡ Grundøki 309 ㎡ Kømur 4 Ár 1983",
    "place": "—",
    "type": "—",
    "price": 895000.0,
@@ -1117,10 +1131,10 @@
    "market": "fo",
    "id": "ee1afbd900d7e62c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "133d Fylg kr . 3.995.000 Við leitisstein 3 Norðragøta Stødd 292 ㎡ Kømur 1 Ár 2026",
+   "title": "134d Fylg kr . 3.995.000 Við leitisstein 3 Norðragøta Stødd 292 ㎡ Kømur 1 Ár 2026",
    "place": "—",
    "type": "—",
    "price": 3995000.0,
@@ -1131,10 +1145,10 @@
    "market": "fo",
    "id": "62e8e6b45bf8ca19",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "134d Fylg kr . 2.495.000 Matr. 283a og 283d, kollafjørður Signabøur Grundøki 12779 ㎡",
+   "title": "135d Fylg kr . 2.495.000 Matr. 283a og 283d, kollafjørður Signabøur Grundøki 12779 ㎡",
    "place": "—",
    "type": "—",
    "price": 2495000.0,
@@ -1145,10 +1159,10 @@
    "market": "fo",
    "id": "c72a93b5114bcc82",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
-   "title": "136d Fylg kr . 302.445 Við grástein 3 Hvalvík Grundøki 611 ㎡",
+   "title": "137d Fylg kr . 302.445 Við grástein 3 Hvalvík Grundøki 611 ㎡",
    "place": "—",
    "type": "—",
    "price": 302445.0,
@@ -1159,7 +1173,7 @@
    "market": "fo",
    "id": "fdd6150e26325869",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 4.995.000 Birnugøta 12 Tórshavn Stødd 112 ㎡ Grundøki 1211 ㎡ Kømur 4 Ár 19",
@@ -1173,7 +1187,7 @@
    "market": "fo",
    "id": "612e60b886d412b9",
    "first_seen": "2026-10-04",
-   "days_on_market": 5,
+   "days_on_market": 6,
    "price_change": -500000.0,
    "price_change_pct": -9.1
   },
@@ -1189,7 +1203,7 @@
    "market": "fo",
    "id": "8631540fa5956ced",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 625.000 Matr. 43i Velbastaður Grundøki 510 ㎡",
@@ -1203,7 +1217,7 @@
    "market": "fo",
    "id": "bbfc179cc39f3a63",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "opið hús > 150d Fylg kr . 3.200.000 Boð : 4.600.000 Andrasargøta 13 Hoyvík Grundøki 505 ㎡",
@@ -1217,7 +1231,7 @@
    "market": "fo",
    "id": "dc9a9de0edba2c44",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 2.900.000 Undir gráasteini 7b Tórshavn Grundøki 499 ㎡",
@@ -1231,7 +1245,7 @@
    "market": "fo",
    "id": "4abee62cb553b504",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 1.000.000 Matr.nr. 62a froðba Froðba Stødd 24048 ㎡",
@@ -1245,7 +1259,7 @@
    "market": "fo",
    "id": "d99cff5ca01ed44d",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 400.000 Matr.nr. 793a-b-c-d-e-f froðba Froðba Grundøki 8204 ㎡",
@@ -1259,7 +1273,7 @@
    "market": "fo",
    "id": "12ea878046011aca",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 300.000 Matr. 215 Tvøroyri Grundøki 5493 ㎡",
@@ -1273,7 +1287,7 @@
    "market": "fo",
    "id": "2991beb1ff3d71f1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 175.900 Matr. 216b og 216c Tvøroyri Grundøki 1759 ㎡",
@@ -1287,7 +1301,7 @@
    "market": "fo",
    "id": "f6b935d819773ffe",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 230.000 Matr. 699 Tvøroyri Grundøki 6410 ㎡",
@@ -1301,7 +1315,7 @@
    "market": "fo",
    "id": "00e02330ba4501df",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 495.000 Matr. 121 Trongisvágur Grundøki 11320 ㎡",
@@ -1315,7 +1329,7 @@
    "market": "fo",
    "id": "e2ce1fa80beca3f8",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 495.000 Matr.nr. 546 froðba Froðba Stødd 46 ㎡ Grundøki 1035 ㎡",
@@ -1329,21 +1343,7 @@
    "market": "fo",
    "id": "1a22600abb77ab72",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
-  },
-  {
-   "title": "> 150d Fylg kr . 328.185 Hornavegur 18 Oyri Grundøki 663 ㎡",
-   "place": "—",
-   "type": "—",
-   "price": 328185.0,
-   "area": null,
-   "rooms": null,
-   "url": "https://skyn.fo/default.aspx?id=212&ProductID=PROD1879",
-   "source": "bugv.fo",
-   "market": "fo",
-   "id": "d06c5b5ca74bda20",
-   "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 104.700 Lyngvegur 4 Norðskáli Grundøki 698 ㎡",
@@ -1357,7 +1357,21 @@
    "market": "fo",
    "id": "43f62799c419f2b3",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
+  },
+  {
+   "title": "> 150d Fylg kr . 328.185 Hornavegur 18 Oyri Grundøki 663 ㎡",
+   "place": "—",
+   "type": "—",
+   "price": 328185.0,
+   "area": null,
+   "rooms": null,
+   "url": "https://skyn.fo/default.aspx?id=212&ProductID=PROD1879",
+   "source": "bugv.fo",
+   "market": "fo",
+   "id": "d06c5b5ca74bda20",
+   "first_seen": "2026-10-04",
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 86.400 Undir grótheyggi 8 Oyrarbakki Grundøki 576 ㎡",
@@ -1371,7 +1385,7 @@
    "market": "fo",
    "id": "466fd6e12ff89477",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 88.650 Undir grótheyggi 3 Oyrarbakki Grundøki 591 ㎡",
@@ -1385,7 +1399,7 @@
    "market": "fo",
    "id": "d50b84ea0e6286fb",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 318.285 Brekkugerði 13 Hósvík Grundøki 643 ㎡",
@@ -1399,7 +1413,7 @@
    "market": "fo",
    "id": "fa431e9553e03063",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 318.285 Brekkugerði 15 Hósvík Grundøki 643 ㎡",
@@ -1413,7 +1427,7 @@
    "market": "fo",
    "id": "83458738a8743279",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 1.975.000 Sjógøta 24 Tvøroyri Stødd 270 ㎡ Grundøki 242 ㎡ Kømur 5 Ár 1968",
@@ -1427,7 +1441,7 @@
    "market": "fo",
    "id": "3cbb667912e74c66",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 500.000 Kirkjubrekkan 4 Tvøroyri Grundøki 484 ㎡ Kømur 2",
@@ -1441,7 +1455,7 @@
    "market": "fo",
    "id": "b8d54b25bcde82a5",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 750.000 Matr.nr. 57b árnafjørður Árnafjørður Grundøki 1152 ㎡",
@@ -1455,7 +1469,7 @@
    "market": "fo",
    "id": "5ec40acfbe4e19e7",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 395.000 Leitisvegur Saltangará Grundøki 1006 ㎡",
@@ -1469,7 +1483,7 @@
    "market": "fo",
    "id": "6c568dc954ce027b",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 150.000 Matr. nr. 237b Elduvík Grundøki 16256 ㎡",
@@ -1483,7 +1497,7 @@
    "market": "fo",
    "id": "9d10bb107f0c9fcb",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 125.000 Lynggøta 14 Trongisvágur Grundøki 844 ㎡",
@@ -1497,7 +1511,7 @@
    "market": "fo",
    "id": "2cbde2f5f3df0f32",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 330.000 Bíarvegur Hvalba Grundøki 2970 ㎡",
@@ -1511,7 +1525,7 @@
    "market": "fo",
    "id": "f3f338b0e9100505",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 4.195.000 Rituvíkarvegur 87 Rituvík Stødd 950 ㎡ Grundøki 1400 ㎡",
@@ -1525,7 +1539,7 @@
    "market": "fo",
    "id": "cb32c38c5d405ec1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 2.398.000 Leitisvegur 3 Miðvágur Stødd 231 ㎡ Grundøki 189 ㎡ Kømur 1 Ár 19",
@@ -1539,7 +1553,7 @@
    "market": "fo",
    "id": "51859f9f330240f6",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "boð > 150d Fylg kr . 395.000 Boð : 350.000 Válagøta 23 Nólsoy Grundøki 709 ㎡",
@@ -1553,7 +1567,7 @@
    "market": "fo",
    "id": "08516c8948b33ee4",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 495.000 Bakkavegur 9 Porkeri Stødd 120 ㎡ Grundøki 612 ㎡",
@@ -1567,7 +1581,7 @@
    "market": "fo",
    "id": "055be7b1ccec4f77",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 360.000 Ovarivegur 36 Sumba Stødd 94 ㎡ Grundøki 1637 ㎡ Ár 1711",
@@ -1581,7 +1595,7 @@
    "market": "fo",
    "id": "16b726ee28f187c5",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 1.850.000 Við kykslið 4 Vágur Stødd 90 ㎡ Kømur 2 Ár 2016",
@@ -1595,7 +1609,7 @@
    "market": "fo",
    "id": "b398396f4995155d",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 294.525 Hornavegur 12 Oyri Grundøki 595 ㎡",
@@ -1609,7 +1623,7 @@
    "market": "fo",
    "id": "e0237a1fcd7fe6ba",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 255.420 Myllágøta 7 Langasandur Grundøki 516 ㎡",
@@ -1623,7 +1637,7 @@
    "market": "fo",
    "id": "40ada9ffa0e409de",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 595.000 Lokkargarðsvegur 5 Sumba Stødd 130 ㎡ Grundøki 330 ㎡ Kømur 3 Ár 19",
@@ -1637,7 +1651,7 @@
    "market": "fo",
    "id": "3546e2943675fe7e",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 6.000.000 Undir glaðsheyggi 1 Tórshavn Stødd 78 ㎡ Grundøki 88 ㎡ Kømur 4 Á",
@@ -1651,7 +1665,7 @@
    "market": "fo",
    "id": "806a34dc89d7ebb2",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 395.000 Matr. nr. 111a sørvágur Sørvágur Grundøki 7866 ㎡",
@@ -1665,7 +1679,7 @@
    "market": "fo",
    "id": "f75a2b2544277b01",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 319.999 Matr. nr. 29a - nólsoy Nólsoy Grundøki 2537 ㎡",
@@ -1679,7 +1693,7 @@
    "market": "fo",
    "id": "00a852f0169d7746",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 2.795.000 Íbúðir við hálsatjørn á strondum Strendur Stødd 85 ㎡ Kømur 2 Ár",
@@ -1693,7 +1707,7 @@
    "market": "fo",
    "id": "47fb27eadf05e04a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 6.135.000 Á hvítanesi 28 Hvítanes Stødd 285 ㎡ Grundøki 2500 ㎡ Kømur 4 Ár",
@@ -1707,7 +1721,7 @@
    "market": "fo",
    "id": "8db42ef81f53d9c8",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 295.000 Mainifløta 14 Eiði Grundøki 596 ㎡",
@@ -1721,7 +1735,7 @@
    "market": "fo",
    "id": "c9050c9ac01b942a",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 250.000 Í heygnum 138 Trongisvágur Grundøki 750 ㎡",
@@ -1735,7 +1749,7 @@
    "market": "fo",
    "id": "e5d33dca6184c99c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 1.750.000 Økir til íbúðarbygging á skála til sølu Skála",
@@ -1749,7 +1763,7 @@
    "market": "fo",
    "id": "abcf36789989f3fb",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 590.000 Trøð - matr.nr. 811 Froðba Grundøki 5439 ㎡",
@@ -1763,7 +1777,7 @@
    "market": "fo",
    "id": "7a5520df61b4212c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 250.000 Við skálaveg Hvalba Grundøki 10043 ㎡",
@@ -1777,7 +1791,7 @@
    "market": "fo",
    "id": "bafe08cea130f032",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 150.000 Líðartún 14, líðin Ørðavík Grundøki 714 ㎡",
@@ -1791,7 +1805,7 @@
    "market": "fo",
    "id": "1a1fff61d912f1e4",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "> 150d Fylg kr . 1.200.000 Valabrekkan 3 Tvøroyri Stødd 296 ㎡ Grundøki 180 ㎡",
@@ -1805,7 +1819,7 @@
    "market": "fo",
    "id": "7cdbfb90082374a7",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Nýggjur prísur Bøgøta 26 Sumba 169 m² 607 m² 4 2 1960 Prísuppskot: 995.000 kr.",
@@ -1819,7 +1833,7 @@
    "market": "fo",
    "id": "9b6287a7e5a73f42",
    "first_seen": "2026-10-09",
-   "days_on_market": 0
+   "days_on_market": 1
   },
   {
    "title": "Nýggj ogn Opið hús við tilmelding fríggjadagin 16. oktober Brúnagøta 7 Tórshavn 216 m² 505",
@@ -1833,7 +1847,7 @@
    "market": "fo",
    "id": "137d32eaf5241326",
    "first_seen": "2026-10-09",
-   "days_on_market": 0
+   "days_on_market": 1
   },
   {
    "title": "Nýtt boð Niðaragøta 70 Hoyvík 159 m² 183 m² 3 3 1998 Prísuppskot: 4.395.000 kr. Seinasta b",
@@ -1847,7 +1861,7 @@
    "market": "fo",
    "id": "6badbf2ece900aa1",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Nýtt boð Válagøta 23 Nólsoy 0 m² 709 m² 0 0 0 Prísuppskot: 395.000 kr. Seinasta boð 350.00",
@@ -1861,7 +1875,7 @@
    "market": "fo",
    "id": "2c74899624ae755b",
    "first_seen": "2026-10-06",
-   "days_on_market": 3
+   "days_on_market": 4
   },
   {
    "title": "Nýggjur prísur matr.nr. 543 Strendur Strendur 73 m² 63 m² 0 2 0 Prísuppskot: 100.000 kr. Ú",
@@ -1875,7 +1889,7 @@
    "market": "fo",
    "id": "cd1f1ec17b23fd08",
    "first_seen": "2026-10-04",
-   "days_on_market": 5,
+   "days_on_market": 6,
    "price_change": -50000.0,
    "price_change_pct": -33.3
   },
@@ -1891,7 +1905,7 @@
    "market": "fo",
    "id": "04ec49737fb9f641",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Nýggj ogn Skákið 2 Rituvík 260 m² 622 m² 3 2 1984 Prísuppskot: 3.495.000 kr.",
@@ -1905,7 +1919,7 @@
    "market": "fo",
    "id": "40620182f488e58e",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Nýggj ogn Vágsvegur 113 Vágur 319 m² 858 m² 8 3 1980 Prísuppskot: 2.000.000 kr.",
@@ -1919,7 +1933,7 @@
    "market": "fo",
    "id": "626afce87da9444c",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Gerðisvegur 4 Leirvík 92 m² 630 m² 2 1 1976 Prísuppskot: 2.350.000 kr. Útgingið boð 2.000.",
@@ -1933,7 +1947,7 @@
    "market": "fo",
    "id": "06e11cdd4c955456",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Bakkavegur 9 Sørvágur 444 m² 676 m² 0 3 1950 Prísuppskot: 850.000 kr. Útgingið boð 450.000",
@@ -1947,7 +1961,7 @@
    "market": "fo",
    "id": "02cf72c46d70f1fd",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "í Geilini 6 Sørvágur 177 m² 728 m² 3 3 1928 Prísuppskot: 1.900.000 kr.",
@@ -1961,7 +1975,7 @@
    "market": "fo",
    "id": "ad10bbffeb09a707",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   },
   {
    "title": "Matr.nr. 49q Kaldbak Kaldbak 0 m² 432 m² 0 0 0 Prísuppskot: 1.100.000 kr. Útgingið boð 875",
@@ -1975,7 +1989,7 @@
    "market": "fo",
    "id": "a36baaaa83911bb2",
    "first_seen": "2026-10-04",
-   "days_on_market": 5
+   "days_on_market": 6
   }
  ]
 }
